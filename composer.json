@@ -50,7 +50,7 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/alvincoded/grok-php/issues",
-        "source": "https://github.com/alvincoded/grok-php"
+        "issues": "https://github.com/alvincoded/php-grok-ai/issues",
+        "source": "https://github.com/alvincoded/php-grok-ai"
     }
 }
