@@ -13,8 +13,8 @@ Grok PHP is a robust, flexible, and feature-rich PHP package designed to interac
 ## Requirements
 
 - PHP 8.1 or higher
-- Composer
-- Grok AI API key
+- [Composer](https://getcomposer.org)
+- [Grok AI API key](https://docs.x.ai/docs/overview)
 
 ## Installation
 
@@ -165,6 +165,17 @@ try {
     echo "Error: " . $e->getMessage();
 }
 ```
+<br>
+
+## Supported Models
+
+| Model               | Supports Streaming | Supports Functions |
+|---------------------|--------------------|--------------------|
+| grok-beta           | Yes                | Yes                |
+| grok-2-vision-1212  | No                 | No                 |
+| grok-2-1212         | Yes                | Yes                |
+
+<br>
 
 ## Testing
 
@@ -172,9 +183,17 @@ try {
 composer test
 ```
 
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
 ## Contributing
 
-We welcome contributions! Please see the [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are highly aappreciated! Please see the [Contributing Guide](CONTRIBUTING.md) for details.
+
+## Security
+
+Please review [our security policy](SECURITY.md) on how to report security vulnerabilities.
 
 ## License
 
