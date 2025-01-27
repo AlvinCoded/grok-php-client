@@ -1,0 +1,41 @@
+# Ignore .env file
+.env
+
+# Ignore vendor directory
+/vendor/
+
+# Ignore Composer dependencies
+/composer.lock
+
+# Ignore IDE specific files
+/.idea/
+/.vscode/
+/nbproject/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore log files and temp files
+*.log
+*.tmp
+*.temp
+/junit.xml
+/testdox.xml
+/testdox.html
+
+# Ignore PHPUnit result cache
+/.phpunit.result.cache
+/.phpunit-watcher.yml
+/.phpunit-watcher.yml.dist
+/.phpunit.cache/
+
+# Ignore coverage reports
+coverage/
+
+# Ignore build artifacts
+/build/
+/dist/
+
+# Ignore node_modules if using Node.js
+/node_modules/

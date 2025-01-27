@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="random"
+         requireCoverageMetadata="true"
+         beStrictAboutCoverageMetadata="true"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+         failOnWarning="true">
+
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory>src/Exceptions</directory>
+        </exclude>
+        <report>
+            <html outputDirectory="coverage"/>
+            <clover outputFile="coverage.xml"/>
+        </report>
+    </coverage>
+
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="GROK_API_KEY" value="test-key"/>
+        <ini name="error_reporting" value="-1"/>
+        <ini name="display_errors" value="On"/>
+        <ini name="display_startup_errors" value="On"/>
+    </php>
+
+    <logging>
+        <junit outputFile="junit.xml"/>
+        <testdoxHtml outputFile="testdox.html"/>
+        <testdoxText outputFile="testdox.txt"/>
+    </logging>
+
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
+</phpunit>
