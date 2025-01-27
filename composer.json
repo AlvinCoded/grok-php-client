@@ -1,5 +1,5 @@
 {
-    "name": "alvincoded/grok-php",
+    "name": "alvincoded/php-grok-ai",
     "description": "A robust and feature-rich PHP wrapper for the Grok AI API",
     "type": "library",
     "license": "MIT",
