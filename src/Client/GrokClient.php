@@ -6,9 +6,11 @@ namespace GrokPHP\Client;
 
 use GrokPHP\Endpoints\Chat;
 use GrokPHP\Endpoints\Completions;
+use GrokPHP\Endpoints\Embeddings;
 use GrokPHP\Endpoints\Images;
 use GrokPHP\Exceptions\GrokException;
 use GrokPHP\Config;
+use GrokPHP\Enums\Model;
 
 /**
  * Class GrokClient
@@ -36,6 +38,11 @@ class GrokClient implements ClientInterface
     private Config $config;
 
     /**
+     * @var string|null $currentModel The current model to use for API requests
+     */
+    private ?Model $currentModel = null;
+
+    /**
      * GrokClient constructor
      *
      * @param string $apiKey Grok AI API key
@@ -52,6 +59,17 @@ class GrokClient implements ClientInterface
         $this->config = new Config(array_merge($options, ['api_key' => $apiKey]));
     }
 
+    public function model(Model $model): self
+    {
+        $this->currentModel = $model;
+        return $this;
+    }
+
+    public function beginConvo(array $history = []): Chat
+    {
+        return $this->chat()->withHistory($history);
+    }
+
     /**
      * Get the Chat endpoint instance
      *
@@ -59,7 +77,7 @@ class GrokClient implements ClientInterface
      */
     public function chat(): Chat
     {
-        return new Chat($this->config);
+        return new Chat($this->config, $this->currentModel);
     }
 
     /**
@@ -69,7 +87,7 @@ class GrokClient implements ClientInterface
      */
     public function completions(): Completions
     {
-        return new Completions(new \GuzzleHttp\Client, $this->config);
+        return new Completions($this->config, $this->currentModel);
     }
 
     /**
@@ -79,7 +97,17 @@ class GrokClient implements ClientInterface
      */
     public function images(): Images
     {
-        return new Images(new \GuzzleHttp\Client, $this->config, new \GrokPHP\Utils\RequestBuilder(), new \GrokPHP\Utils\ResponseParser());
+        return new Images($this->config, $this->currentModel);
+    }
+
+    /**
+     * Get the Embeddings endpoint instance
+     *
+     * @return Embeddings
+     */
+    public function embeddings(): Embeddings
+    {
+        return new Embeddings($this->config, $this->currentModel);
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GrokPHP;
 
+use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\GrokException;
 
 /**
@@ -32,27 +33,6 @@ class Config
         'base_url' => 'https://api.x.ai',
         'debug' => false,
         'stream_buffer_size' => 1024,
-    ];
-
-    /**
-     * @var array Model-specific configurations
-     */
-    private array $modelConfigs = [
-        'grok-beta' => [
-            'max_tokens' => 128000,
-            'supports_streaming' => true,
-            'supports_functions' => true,
-        ],
-        'grok-2-vision-1212' => [
-            'max_tokens' => 4096,
-            'supports_streaming' => false,
-            'supports_functions' => false,
-        ],
-        'grok-2-1212' => [
-            'max_tokens' => 128000,
-            'supports_streaming' => true,
-            'supports_functions' => true,
-        ],
     ];
 
     /**
@@ -136,55 +116,39 @@ class Config
     }
 
     /**
-     * Get model-specific configuration.
-     *
-     * @param string $model
-     * @return array
-     * @throws GrokException
-     */
-    public function getModelConfig(string $model): array
-    {
-        if (!isset($this->modelConfigs[$model])) {
-            throw new GrokException("Unknown model: {$model}");
-        }
-
-        return $this->modelConfigs[$model];
-    }
-
-    /**
      * Check if a model supports streaming.
      *
-     * @param string $model
+     * @param Model $model
      * @return bool
      * @throws GrokException
      */
-    public function modelSupportsStreaming(string $model): bool
+    public function modelSupportsStreaming(Model $model): bool
     {
-        return $this->getModelConfig($model)['supports_streaming'];
+        return $model->supportsStreaming();
     }
 
     /**
      * Check if a model supports functions.
      *
-     * @param string $model
+     * @param Model $model
      * @return bool
      * @throws GrokException
      */
-    public function modelSupportsFunctions(string $model): bool
+    public function modelSupportsFunctions(Model $model): bool
     {
-        return $this->getModelConfig($model)['supports_functions'];
+        return $model->supportsVision();
     }
 
     /**
      * Get maximum tokens for a model.
      *
-     * @param string $model
+     * @param Model $model
      * @return int
      * @throws GrokException
      */
-    public function getModelMaxTokens(string $model): int
+    public function getModelMaxTokens(Model $model): int
     {
-        return $this->getModelConfig($model)['max_tokens'];
+        return $model->contextWindow();
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GrokPHP\Models;
 
+use GrokPHP\Enums\Model;
 use GrokPHP\Traits\ValidatesInput;
 use GrokPHP\Exceptions\GrokException;
 use JsonSerializable;
@@ -28,9 +29,9 @@ class ChatMessage implements JsonSerializable
     private string $id;
 
     /**
-     * @var string The model used for generation
+     * @var Model The model used for generation
      */
-    private string $model;
+    private Model $model;
 
     /**
      * @var array The message content and metadata
@@ -71,15 +72,13 @@ class ChatMessage implements JsonSerializable
      * @throws GrokException
      */
     private function validateAndSetData(array $data): void
-    {
-        $this->validateParameter('model', $data['model'] ?? 'grok-2-1212');
-        
+    {        
         if (!isset($data['choices']) || !is_array($data['choices'])) {
             throw new GrokException('Invalid response format: missing choices array');
         }
 
         $this->id = $data['id'] ?? '';
-        $this->model = $data['model'] ?? 'grok-2-1212';
+        $this->model = Model::fromString($data['model'] ?? 'grok-2-1212');
         $this->choices = $data['choices'];
         $this->created = $data['created'] ?? null;
         $this->usage = $data['usage'] ?? [];
@@ -129,9 +128,9 @@ class ChatMessage implements JsonSerializable
     /**
      * Get the model used.
      *
-     * @return string
+     * @return Model
      */
-    public function getModel(): string
+    public function getModel(): Model
     {
         return $this->model;
     }
@@ -215,7 +214,7 @@ class ChatMessage implements JsonSerializable
     {
         return [
             'id' => $this->id,
-            'model' => $this->model,
+            'model' => $this->model->value,
             'choices' => $this->choices,
             'created' => $this->created,
             'usage' => $this->usage,
@@ -271,5 +270,45 @@ class ChatMessage implements JsonSerializable
     public function getCompletionTokens(): int
     {
         return $this->usage['completion_tokens'] ?? 0;
+    }
+
+    /**
+     * Retrieves the text content of the chat message.
+     *
+     * @return string
+     */
+    public function text(): string
+    {
+        return $this->getContent();
+    }
+
+    /**
+     * Get the role of the chat message.
+     *
+     * @return string
+     */
+    public function role(): string
+    {
+        return $this->getRole();
+    }
+
+    /**
+     * Retrieves the usage information.
+     *
+     * @return array
+     */
+    public function usage(): array
+    {
+        return $this->getUsage();
+    }
+
+    /**
+     * Checks if the chat completion is streaming.
+     *
+     * @return bool
+     */
+    public function isStreaming(): bool
+    {
+        return $this->isStreamChunk();
     }
 }

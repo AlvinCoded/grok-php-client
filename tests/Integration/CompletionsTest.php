@@ -42,11 +42,10 @@ class CompletionsTest extends TestCase
     {
         $response = $this->client->completions()->create(
             'Write a short poem about AI',
-            [
-                'temperature' => 0.8,
-                'max_tokens' => 100,
-                'top_p' => 0.9
-            ]
+            (new \GrokPHP\Params())
+                ->temperature(0.8)
+                ->maxTokens(100)
+                ->topP(0.9)
         );
 
         $this->assertInstanceOf(ChatCompletion::class, $response);
@@ -86,9 +85,7 @@ class CompletionsTest extends TestCase
     {
         $response = $this->client->completions()->create(
             'What is your purpose?',
-            [
-                'system_message' => 'You are a helpful AI assistant named Grok.'
-            ]
+            (new \GrokPHP\Params())->systemMessage('You are a helpful AI assistant named Grok.')
         );
 
         $this->assertInstanceOf(ChatCompletion::class, $response);
@@ -101,7 +98,7 @@ class CompletionsTest extends TestCase
         
         $this->client->completions()->create(
             'Test prompt',
-            ['temperature' => 3.0]
+            (new \GrokPHP\Params())->temperature(3.0)
         );
     }
 
@@ -121,7 +118,7 @@ class CompletionsTest extends TestCase
         foreach ([0.2, 0.8] as $temp) {
             $responses[] = $this->client->completions()->create(
                 'Write a creative story about a talking stone',
-                ['temperature' => $temp]
+                (new \GrokPHP\Params())->temperature($temp)
             );
         }
 

@@ -7,6 +7,8 @@ namespace GrokPHP\Endpoints;
 use GrokPHP\Config;
 use GrokPHP\Exceptions\GrokException;
 use GrokPHP\Models\ChatMessage;
+use GrokPHP\Params;
+use GrokPHP\Enums\Model;
 use GrokPHP\Traits\HasApiOperations;
 use GrokPHP\Traits\ValidatesInput;
 use GrokPHP\Utils\RequestBuilder;
@@ -37,6 +39,11 @@ class Chat
     private Config $config;
 
     /**
+     * @var Model The model to use for chat operations
+     */
+    private Model $model;
+
+    /**
      * @var RequestBuilder The request builder instance
      */
     private RequestBuilder $requestBuilder;
@@ -50,16 +57,30 @@ class Chat
      * @var string The base endpoint for chat operations
      */
     private const CHAT_ENDPOINT = '/v1/chat/completions';
+    
+    /**
+     * @var array Chat history
+     */
+    private array $history = [];
 
     /**
      * Chat constructor.
      *
-     * @param Client $client
      * @param Config $config
+     * @param string|null $model
      */
-    public function __construct(Config $config)
+    public function __construct(Config $config, ?Model $model = null)
     {
         $this->config = $config;
+
+        if (is_string($model)) {
+            $this->model = Model::fromString($model);
+        } elseif ($model instanceof Model) {
+            $this->model = $model;
+        } else {
+            $this->model = Model::default();
+        }
+
         $this->client = new Client([
             'base_uri' => $config->getBaseUrl(),
             'timeout' => $config->get('timeout'),
@@ -68,67 +89,132 @@ class Chat
         $this->responseParser = new ResponseParser();
     }
 
-
     /**
      * Send a chat message to Grok AI.
      *
-     * @param string $message The message content
-     * @param array $options Additional options for the request
-     * @return ChatMessage
-     * @throws GrokException
+     * @param string $message The message to send.
+     * @param Params|null $params Optional parameters for the request.
+     * @return ChatMessage The response from the assistant.
      */
-    public function send(string $message, array $options = []): ChatMessage
+    public function send(string $message, ?Params $params = null): ChatMessage
     {
-        $payload = $this->requestBuilder->buildChatRequest(
-            [['role' => 'user', 'content' => $message]],
-            $options
-        );
+        $this->history[] = ['role' => 'user', 'content' => $message];
+        $response = $this->generate($this->history, $params);
+        $this->history[] = ['role' => 'assistant', 'content' => $response->text()];
+        return $response;
+    }
 
-        $headers = $this->requestBuilder->buildHeaders($this->config->getApiKey());
+    /**
+     * Generates a chat message based on the given prompt and options.
+     *
+     * @param string|array $prompt The prompt to generate the chat message from. It can be a string or an array of strings.
+     * @param Params|null $params Optional parameters for the request.
+     * @return ChatMessage The generated chat message.
+     */
+    public function generate(string|array $prompt, ?Params $params = null): ChatMessage
+    {
+        $messages = $this->formatPrompt($prompt);
+        $payload = $this->requestBuilder->buildChatRequest(
+            $messages,
+            $params?->toArray() ?? [],
+            $this->model->value
+        );
+        
         $response = $this->client->post(self::CHAT_ENDPOINT, [
             'json' => $payload,
-            'headers' => $headers,
+            'headers' => $this->requestBuilder->buildHeaders($this->config->getApiKey())
         ]);
-
+        
         return $this->responseParser->parse($response, 'chat');
+    }
+
+    /**
+     * Sets the chat history.
+     *
+     * @param array $history An array containing the chat history.
+     * @return self Returns the current instance for method chaining.
+     */
+    public function withHistory(array $history): self
+    {
+        $this->history = $history;
+        return $this;
     }
 
     /**
      * Create a chat conversation with multiple messages.
      *
      * @param array $messages Array of message objects with role and content
-     * @param array $options Additional options for the request
+     * @param Params|null $params Optional parameters for the request.
      * @return ChatMessage
      * @throws GrokException
      */
-    public function conversation(array $messages, array $options = []): ChatMessage
+    public function conversation(array $messages, ?Params $params = null): ChatMessage
     {
-        $payload = $this->requestBuilder->buildChatRequest($messages, $options);
+        $payload = $this->requestBuilder->buildChatRequest(
+            $messages,
+            $params?->toArray() ?? [],
+            $this->model->value
+        );
 
-        $response = $this->client->post(self::CHAT_ENDPOINT, ['json' => $payload]);
-
+        $response = $this->client->post(self::CHAT_ENDPOINT, [
+            'json' => $payload
+        ]);
+        
         return $this->responseParser->parse($response, 'chat');
     }
 
     /**
      * Stream a chat response from Grok AI.
      *
-     * @param string $message The message content
-     * @param callable $callback Function to handle each chunk of the stream
-     * @param array $options Additional options for the request
+     * @param string|array $prompt The prompt to send to the chat API.
+     * @param callable $callback Function to handle each chunk of the stream.
+     * @param array $options Additional options for the request.
      * @throws GrokException
      */
-    public function streamChat(string $message, callable $callback, array $options = []): void
+    public function streamChat(string|array $prompt, callable $callback, ?Params $params = null): void
     {
+        $messages = $this->formatPrompt($prompt);
         $payload = $this->requestBuilder->buildChatRequest(
-            [['role' => 'user', 'content' => $message]],
-            array_merge($options, ['stream' => true])
+            $messages,
+            ($params ?? Params::create()->stream())->toArray(),
+            $this->model->value
         );
 
-        $this->stream(self::CHAT_ENDPOINT, $payload, array_merge($options, [
-            'callback' => function ($data) use ($callback) {
-                $callback($this->responseParser->parseStreamChunk($data));
-            }
-        ]));
+        $this->streamRequest(self::CHAT_ENDPOINT, $payload, $callback);
+    }
+
+    /**
+     * Stream a request to the given endpoint.
+     *
+     * @param string $endpoint The endpoint to stream the request to.
+     * @param array $payload The payload to send with the request.
+     * @param callable $callback Function to handle each chunk of the stream.
+     */
+    private function streamRequest(string $endpoint, array $payload, callable $callback): void
+    {
+        $headers = $this->requestBuilder->buildHeaders($this->config->getApiKey());
+        $response = $this->client->post($endpoint, [
+            'json' => $payload,
+            'headers' => $headers,
+            'stream' => true,
+        ]);
+
+        foreach ($response->getBody() as $chunk) {
+            $callback($chunk);
+        }
+    }
+
+    /**
+     * Formats the given prompt into an array of messages.
+     *
+     * @param string|array $prompt The prompt to format (can be a string or an array of messages).
+     * @return array The formatted prompt as an array of messages.
+     */
+    private function formatPrompt(string|array $prompt): array
+    {
+        if (is_string($prompt)) {
+            return [['role' => 'user', 'content' => $prompt]];
+        }
+        return $prompt;
     }
 }

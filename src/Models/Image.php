@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GrokPHP\Models;
 
+use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\GrokException;
 use GrokPHP\Traits\ValidatesInput;
 use JsonSerializable;
@@ -39,9 +40,9 @@ class Image implements JsonSerializable
     private int $created;
 
     /**
-     * @var string The model used for image analysis
+     * @var Model The model used for image analysis
      */
-    private string $model;
+    private Model $model;
 
     /**
      * @var array The analysis choices/responses
@@ -83,15 +84,13 @@ class Image implements JsonSerializable
      */
     private function validateAndSetData(array $data): void
     {
-        $this->validateParameter('model', $data['model'] ?? 'grok-2-vision-1212');
-        
         if (isset($data['choices'][0]['message']['content'])) {
             $this->validateImageUrl($this->extractImageUrl($data));
         }
 
         $this->id = $data['id'] ?? '';
         $this->created = $data['created'] ?? time();
-        $this->model = $data['model'] ?? 'grok-2-vision-1212';
+        $this->model = Model::fromString($data['model'] ?? 'grok-2-1212');
         $this->choices = $data['choices'];
         $this->usage = $data['usage'] ?? [];
         $this->imageUrl = $this->extractImageUrl($data);
@@ -137,9 +136,9 @@ class Image implements JsonSerializable
     /**
      * Get the model used for analysis.
      *
-     * @return string
+     * @return Model
      */
-    public function getModel(): string
+    public function getModel(): Model
     {
         return $this->model;
     }

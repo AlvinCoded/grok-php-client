@@ -9,6 +9,7 @@ use GrokPHP\Models\ChatMessage;
 use GrokPHP\Exceptions\GrokException;
 use PHPUnit\Framework\TestCase;
 use Dotenv\Dotenv;
+use GrokPHP\Params;
 
 class ChatTest extends TestCase
 {
@@ -38,12 +39,14 @@ class ChatTest extends TestCase
 
     public function testChatCompletionWithSystemMessage(): void
     {
-        $response = $this->client->chat()->send(
-            'Tell me a joke',
-            [
-                'system_message' => 'You are a humorous AI assistant.'
-            ]
-        );
+
+        $params = Params::create()
+                ->temperature(0.8)
+                ->maxTokens(200)
+                ->systemMessage('You are a humorous AI assistant.');
+
+
+        $response = $this->client->chat()->generate("Tell me a joke", $params);
 
         $this->assertInstanceOf(ChatMessage::class, $response);
         $this->assertNotEmpty($response->getContent());
@@ -87,14 +90,14 @@ class ChatTest extends TestCase
 
     public function testChatCompletionWithParameters(): void
     {
-        $response = $this->client->chat()->send(
-            'Write a short poem',
-            [
-                'temperature' => 0.8,
-                'max_tokens' => 100,
-                'top_p' => 0.9
-            ]
-        );
+
+        $params = Params::create()
+                ->temperature(0.8)
+                ->maxTokens(100)
+                ->topP(0.9);
+
+
+        $response = $this->client->chat()->generate("Write a short poem", $params);
 
         $this->assertInstanceOf(ChatMessage::class, $response);
         $this->assertNotEmpty($response->getContent());
@@ -102,7 +105,7 @@ class ChatTest extends TestCase
 
     public function testChatWithTokenUsage(): void
     {
-        $response = $this->client->chat()->send('Hello, how are you?');
+        $response = $this->client->chat()->generate('Hello, how are you?');
 
         $usage = $response->getUsage();
         $this->assertIsArray($usage);
@@ -113,7 +116,7 @@ class ChatTest extends TestCase
 
     public function testChatWithSystemFingerprint(): void
     {
-        $response = $this->client->chat()->send('Tell me about yourself');
+        $response = $this->client->chat()->generate('Tell me about yourself');
 
         $fingerprint = $response->getSystemFingerprint();
         $this->assertNotNull($fingerprint);
@@ -124,17 +127,16 @@ class ChatTest extends TestCase
     {
         $this->expectException(GrokException::class);
 
-        $this->client->chat()->send(
-            'Test message',
-            ['temperature' => 2.5]
-        );
+        $params = Params::create()->temperature(2.5);
+
+        $this->client->chat()->generate("What is the best carribean meal?", $params);
     }
 
     public function testLongConversationContext(): void
     {
         $longPrompt = str_repeat('Test message. ', 1000);
         
-        $response = $this->client->chat()->send($longPrompt);
+        $response = $this->client->chat()->generate($longPrompt);
         
         $this->assertInstanceOf(ChatMessage::class, $response);
         $this->assertNotEmpty($response->getContent());
@@ -142,10 +144,9 @@ class ChatTest extends TestCase
 
     public function testChatCompletionFinishReason(): void
     {
-        $response = $this->client->chat()->send(
-            'Write a very short story',
-            ['max_tokens' => 50]
-        );
+        $params = Params::create()->maxTokens(50);
+
+        $response = $this->client->chat()->generate("Write a very short story", $params);
 
         $this->assertNotNull($response->getFinishReason());
         $this->assertContains(
