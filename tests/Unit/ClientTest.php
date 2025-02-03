@@ -20,7 +20,7 @@ class ClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new GrokClient($this->apiKey);
+        $this->client = new GrokClient();
     }
 
     /**
@@ -33,9 +33,17 @@ class ClientTest extends TestCase
 
     public function testClientThrowsExceptionWithEmptyApiKey(): void
     {
+        $originalEnv = $_ENV;
+
+        unset($_ENV['GROK_API_KEY']);
+        putenv('GROK_API_KEY');
+
         $this->expectException(GrokException::class);
-        $this->expectExceptionMessage('The API key is required');
-        new GrokClient('');
+        $this->expectExceptionMessage('API key is required');
+        
+        new GrokClient();
+
+        $_ENV = $originalEnv;
     }
 
     public function testChatEndpointInitialization(): void
@@ -79,7 +87,7 @@ class ClientTest extends TestCase
             'max_retries' => 5,
         ];
 
-        $client = new GrokClient($this->apiKey, $options);
+        $client = new GrokClient($options);
         $config = $client->getConfig();
 
         $this->assertEquals(60, $config->get('timeout'));

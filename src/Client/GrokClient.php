@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GrokPHP\Client;
 
+use Dotenv\Dotenv;
 use GrokPHP\Endpoints\Chat;
 use GrokPHP\Endpoints\Completions;
 use GrokPHP\Endpoints\Embeddings;
@@ -45,16 +46,19 @@ class GrokClient implements ClientInterface
     /**
      * GrokClient constructor
      *
-     * @param string $apiKey Grok AI API key
-     * @param array $options Additional configuration options
-     * @throws GrokException If the API key is not provided
+     * @param array $options
+     * @throws GrokException
      */
-    public function __construct(string $apiKey, array $options = [])
+    public function __construct(array $options = [])
     {
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
+
+        $apiKey = getenv('GROK_API_KEY');
         if (empty($apiKey)) {
             throw new GrokException('API key is required');
         }
-        
+
         $this->apiKey = $apiKey;
         $this->config = new Config(array_merge($options, ['api_key' => $apiKey]));
     }

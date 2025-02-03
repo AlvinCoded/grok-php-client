@@ -1,5 +1,5 @@
 {
-    "name": "alvincoded/php-grok-ai",
+    "name": "alvincoded/grok-php-client",
     "description": "A robust and feature-rich PHP wrapper for the Grok AI API",
     "type": "library",
     "license": "MIT",
@@ -49,7 +49,7 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/alvincoded/php-grok-ai/issues",
-        "source": "https://github.com/alvincoded/php-grok-ai"
+        "issues": "https://github.com/alvincoded/grok-php-client/issues",
+        "source": "https://github.com/alvincoded/grok-php-client"
     }
 }

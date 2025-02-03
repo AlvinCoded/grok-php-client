@@ -1,7 +1,8 @@
 <h1 align="center">Grok PHP: The Ultimate PHP Library for Grok AI</h1>
+
 <p align="center">
-    <a href="https://packagist.org/packages/alvincoded/php-grok-ai">
-      <img src="https://img.shields.io/packagist/v/alvincoded/php-grok-ai" alt="Latest Version">
+    <a href="https://packagist.org/packages/alvincoded/grok-php-client">
+      <img src="https://img.shields.io/packagist/v/alvincoded/grok-php-client" alt="Latest Version">
     </a>
     <a href="https://php.net">
       <img src="https://img.shields.io/badge/PHP-8.1%2B-blue" alt="PHP Version">
@@ -35,7 +36,7 @@ Grok PHP is a robust, flexible, and feature-rich PHP library designed to interac
 Install Grok PHP via Composer:
 
 ```bash
-composer require alvincoded/php-grok-ai
+composer require alvincoded/grok-php-client
 ```
 
 ## Quick Start
@@ -53,7 +54,7 @@ require_once 'vendor/autoload.php';
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Params;
 
-$client = new GrokClient('your-api-key');
+$client = new GrokClient();
 
 // Simple chat
 $response = $client->chat()->generate("Tell me a joke about AI");
@@ -95,7 +96,7 @@ require_once 'vendor/autoload.php';
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Params;
 
-$client = new GrokClient('your-api-key');
+$client = new GrokClient();
 
 // Basic completion
 $response = $client->completions()->create(
@@ -124,7 +125,7 @@ require_once 'vendor/autoload.php';
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Params;
 
-$client = new GrokClient('your-api-key');
+$client = new GrokClient();
 
 // Basic image analysis
 $response = $client->images()->analyze('https://picsum.photos/200/300');
@@ -148,7 +149,7 @@ require_once 'vendor/autoload.php';
 
 use GrokPHP\Client\GrokClient;
 
-$client = new GrokClient('your-api-key');
+$client = new GrokClient();
 
 $embeddingResponse = $client->embeddings()->create('Hello, world!');
 $embeddings = $embeddingResponse->getEmbeddings();
@@ -164,7 +165,7 @@ require_once 'vendor/autoload.php';
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Enums\Model;
 
-$client = new GrokClient('your-api-key');
+$client = new GrokClient();
 
 // Simple chat (with model specification)
 $response = $client->model(Model::GROK_2_1212)->generate('Tell me a joke about AI');
@@ -276,7 +277,7 @@ Grok PHP is an open-sourced software licensed under the [MIT license](LICENSE).
 
 ## Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/alvincoded/php-grok-ai/issues) on the GitHub repository.
+If you encounter any issues or have questions, please [open an issue](https://github.com/alvincoded/grok-php-client/issues) on the GitHub repository.
 
 ---
 </br>

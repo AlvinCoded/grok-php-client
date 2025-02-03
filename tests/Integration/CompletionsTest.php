@@ -13,25 +13,15 @@ use Dotenv\Dotenv;
 class CompletionsTest extends TestCase
 {
     private GrokClient $client;
-    private string $apiKey;
 
     protected function setUp(): void
     {
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
-
-        $this->apiKey = getenv('GROK_API_KEY') ?: '';
-        if (empty($this->apiKey)) {
-            $this->markTestSkipped('No API key available for integration tests');
-        }
-        $this->client = new GrokClient($this->apiKey);
+        $this->client = new GrokClient();
     }
 
     public function testBasicCompletion(): void
     {
-        $response = $this->client->completions()->create(
-            'What is artificial intelligence?'
-        );
+        $response = $this->client->completions()->create('What is artificial intelligence?');
 
         $this->assertInstanceOf(ChatCompletion::class, $response);
         $this->assertNotEmpty($response->getText());

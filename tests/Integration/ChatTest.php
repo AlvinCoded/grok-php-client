@@ -8,29 +8,20 @@ use GrokPHP\Client\GrokClient;
 use GrokPHP\Models\ChatMessage;
 use GrokPHP\Exceptions\GrokException;
 use PHPUnit\Framework\TestCase;
-use Dotenv\Dotenv;
 use GrokPHP\Params;
 
 class ChatTest extends TestCase
 {
     private GrokClient $client;
-    private string $apiKey;
 
     protected function setUp(): void
     {
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
-
-        $this->apiKey = getenv('GROK_API_KEY') ? getenv('GROK_API_KEY') : '';
-        if (empty($this->apiKey)) {
-            $this->markTestSkipped('No API key available for integration tests');
-        }
-        $this->client = new GrokClient($this->apiKey);
+        $this->client = new GrokClient();
     }
 
     public function testBasicChatCompletion(): void
     {
-        $response = $this->client->chat()->send('What is artificial intelligence?');
+        $response = $this->client->chat()->generate('What is artificial intelligence?');
 
         $this->assertInstanceOf(ChatMessage::class, $response);
         $this->assertNotEmpty($response->getContent());
@@ -67,25 +58,16 @@ class ChatTest extends TestCase
 
     public function testMultiTurnConversation(): void
     {
-        $messages = [
-            [
-                'role' => 'user',
-                'content' => 'What is the capital of France?'
-            ],
-            [
-                'role' => 'assistant',
-                'content' => 'The capital of France is Paris.'
-            ],
-            [
-                'role' => 'user',
-                'content' => 'What is its population?'
-            ]
-        ];
+        $chat = $this->client->beginConvo();
 
-        $response = $this->client->chat()->conversation($messages);
+        $response1 = $chat->send('Hello, how are you?');
+        $this->assertNotEmpty($response1->text());
 
-        $this->assertInstanceOf(ChatMessage::class, $response);
-        $this->assertNotEmpty($response->getContent());
+        $response2 = $chat->send('What is the weather like today?');
+        $this->assertNotEmpty($response2->text());
+
+        $response3 = $chat->send('Can you tell me a joke?');
+        $this->assertNotEmpty($response3->text());
     }
 
     public function testChatCompletionWithParameters(): void
