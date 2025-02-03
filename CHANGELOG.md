@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `php-grok-ai` will be documented in this file.
+All notable changes to `grok-php-client` will be documented in this file.
 
 ## v1.1.0 - 2025-02-03
 
