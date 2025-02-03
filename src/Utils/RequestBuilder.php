@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GrokPHP\Utils;
 
 use GrokPHP\Exceptions\GrokException;
+use GrokPHP\Params;
 use GrokPHP\Traits\ValidatesInput;
 
 /**
@@ -22,7 +23,6 @@ class RequestBuilder
      * @var array Default request options
      */
     private array $defaultOptions = [
-        'model' => 'grok-2-1212',
         'temperature' => 0.7,
         'max_tokens' => 150,
         'top_p' => 1.0,
@@ -35,16 +35,20 @@ class RequestBuilder
      * Build a chat request payload.
      *
      * @param array $messages
-     * @param array $options
+     * @param array $userParams
+     * @param string $model
      * @return array
      * @throws GrokException
      */
-    public function buildChatRequest(array $messages, array $options = []): array
+    public function buildChatRequest(array $messages, array $userParams, string $model): array
     {
         $this->validateMessages($messages);
-        $payload = array_merge($this->defaultOptions, $options);
+
+        $params = (new Params())->toArray();
+        $payload = array_merge($params, $userParams);
         
         return array_merge($payload, [
+            'model' => $model,
             'messages' => $this->formatMessages($messages),
         ]);
     }
@@ -53,20 +57,23 @@ class RequestBuilder
      * Build a completion request payload.
      *
      * @param string $prompt
-     * @param array $options
+     * @param array $userParams
+     * @param string $model
      * @return array
      * @throws GrokException
      */
-    public function buildCompletionRequest(string $prompt, array $options = []): array
+    public function buildCompletionRequest(string $prompt, array $userParams, string $model): array
     {
         if (empty($prompt)) {
             throw new GrokException('Prompt cannot be empty');
         }
 
-        $payload = array_merge($this->defaultOptions, $options);
+        $params = (new Params())->toArray();
+        $payload = array_merge($params, $userParams);
         $this->validateParams($payload);
 
         return array_merge($payload, [
+            'model' => $model,
             'prompt' => $prompt,
         ]);
     }
@@ -76,13 +83,15 @@ class RequestBuilder
      *
      * @param string $imageUrl
      * @param string|null $prompt
-     * @param array $options
+     * @param array $userParams
+     * @param string $model
      * @return array
      * @throws GrokException
      */
-    public function buildImageAnalysisRequest(string $imageUrl, ?string $prompt = null, array $options = []): array
+    public function buildImageAnalysisRequest(string $imageUrl, ?string $prompt = null, array $userParams, string $model): array
     {
         $this->validateImageUrl($imageUrl);
+        $params = (new Params())->toArray();
         
         $messages = [
             [
@@ -101,9 +110,9 @@ class RequestBuilder
         ];
 
         $payload = array_merge(
-            $this->defaultOptions,
-            ['model' => 'grok-2-vision-1212'],
-            $options
+            $params,
+            ['model' => $model],
+            $userParams
         );
 
         return array_merge($payload, [
@@ -167,6 +176,37 @@ class RequestBuilder
             ],
             $additionalHeaders
         );
+    }
+
+    /**
+     * Build an embedding request payload.
+     *
+     * @param string|array $input
+     * @param array $userParams
+     * @param string $model
+     * @return array
+     * @throws GrokException
+     */
+    public function buildEmbeddingRequest(string|array $input, array $userParams, string $model): array
+    {
+
+        $params = (new Params())->toArray();
+
+        $payload = array_merge(
+            $params,
+            ['model' => $model],
+            $userParams
+        );
+        
+        if (is_string($input)) {
+            $payload['input'] = $input;
+        } elseif (is_array($input)) {
+            $payload['input'] = $input;
+        } else {
+            throw new GrokException('Invalid input type for embedding request');
+        }
+
+        return $payload;
     }
 
     /**

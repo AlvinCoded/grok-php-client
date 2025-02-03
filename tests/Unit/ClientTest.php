@@ -9,6 +9,7 @@ use GrokPHP\Config;
 use GrokPHP\Endpoints\Chat;
 use GrokPHP\Endpoints\Completions;
 use GrokPHP\Endpoints\Images;
+use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\GrokException;
 use PHPUnit\Framework\TestCase;
 
@@ -19,9 +20,12 @@ class ClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new GrokClient($this->apiKey);
+        $this->client = new GrokClient();
     }
 
+    /**
+     * @covers \GrokPHP\Client\GrokClient
+     */
     public function testClientInitialization(): void
     {
         $this->assertInstanceOf(GrokClient::class, $this->client);
@@ -29,9 +33,17 @@ class ClientTest extends TestCase
 
     public function testClientThrowsExceptionWithEmptyApiKey(): void
     {
+        $originalEnv = $_ENV;
+
+        unset($_ENV['GROK_API_KEY']);
+        putenv('GROK_API_KEY');
+
         $this->expectException(GrokException::class);
-        $this->expectExceptionMessage('The API key is required');
-        new GrokClient('');
+        $this->expectExceptionMessage('API key is required');
+        
+        new GrokClient();
+
+        $_ENV = $originalEnv;
     }
 
     public function testChatEndpointInitialization(): void
@@ -75,7 +87,7 @@ class ClientTest extends TestCase
             'max_retries' => 5,
         ];
 
-        $client = new GrokClient($this->apiKey, $options);
+        $client = new GrokClient($options);
         $config = $client->getConfig();
 
         $this->assertEquals(60, $config->get('timeout'));
@@ -95,13 +107,13 @@ class ClientTest extends TestCase
     {
         $config = $this->client->getConfig();
         
-        $this->assertTrue($config->modelSupportsStreaming('grok-2-1212'));
-        $this->assertEquals(128000, $config->getModelMaxTokens('grok-2-1212'));
+        $this->assertTrue($config->modelSupportsStreaming(Model::GROK_2_1212));
+        $this->assertEquals(32768, $config->getModelMaxTokens(Model::GROK_2_1212));
     }
 
     public function testInvalidModelConfiguration(): void
     {
-        $this->expectException(GrokException::class);
-        $this->client->getConfig()->getModelConfig('invalid-model');
+        $this->expectException(\InvalidArgumentException::class);
+        Model::fromString('invalid-model');
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GrokPHP\Models;
 
+use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\GrokException;
 use GrokPHP\Traits\ValidatesInput;
 use JsonSerializable;
@@ -42,9 +43,9 @@ class ChatCompletion implements JsonSerializable
     private string $provider;
 
     /**
-     * @var string The model used
+     * @var Model The model used for completion
      */
-    private string $model;
+    private Model $model;
 
     /**
      * @var array The completion choices
@@ -69,9 +70,6 @@ class ChatCompletion implements JsonSerializable
      */
     public function __construct(array $data)
     {
-        $this->validateParams($data, ['choices']);
-        $this->validateParameter('model', $data['model'] ?? 'grok-2-1212');
-
         if (!isset($data['choices']) || !is_array($data['choices'])) {
             throw new GrokException('Invalid completion format: missing choices array');
         }
@@ -79,7 +77,7 @@ class ChatCompletion implements JsonSerializable
         $this->id = $data['id'] ?? '';
         $this->created = $data['created'] ?? time();
         $this->provider = $data['provider'] ?? 'openrouter';
-        $this->model = $data['model'] ?? 'grok-2-1212';
+        $this->model = Model::fromString($data['model'] ?? 'grok-2-1212');
         $this->choices = $data['choices'];
         $this->usage = $data['usage'] ?? [];
         $this->systemFingerprint = $data['system_fingerprint'] ?? null;
@@ -136,9 +134,9 @@ class ChatCompletion implements JsonSerializable
     /**
      * Get the model used for completion.
      *
-     * @return string
+     * @return Model
      */
-    public function getModel(): string
+    public function getModel(): Model
     {
         return $this->model;
     }
@@ -195,7 +193,7 @@ class ChatCompletion implements JsonSerializable
             'object' => $this->object,
             'created' => $this->created,
             'provider' => $this->provider,
-            'model' => $this->model,
+            'model' => $this->model->value,
             'choices' => $this->choices,
             'usage' => $this->usage,
             'system_fingerprint' => $this->systemFingerprint,

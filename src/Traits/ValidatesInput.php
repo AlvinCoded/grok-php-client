@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GrokPHP\Traits;
 
+use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\ValidationException;
 
 /**
@@ -17,26 +18,6 @@ use GrokPHP\Exceptions\ValidationException;
  */
 trait ValidatesInput
 {
-    /**
-     * @var array Default parameter constraints
-     */
-    protected array $constraints = [
-        'temperature'       => ['min' => 0.0,  'max' => 2.0],
-        'top_p'             => ['min' => 0.0,  'max' => 1.0],
-        'max_tokens'        => ['min' => 1,    'max' => 128000],
-        'presence_penalty'  => ['min' => -2.0, 'max' => 2.0],
-        'frequency_penalty' => ['min' => -2.0, 'max' => 2.0],
-        'n'                 => ['min' => 1,    'max' => 10],
-    ];
-
-    /**
-     * @var array Supported models
-     */
-    protected array $supportedModels = [
-        'grok-beta',
-        'grok-2-vision-1212',
-        'grok-2-1212',
-    ];
 
     /**
      * Validate input parameters against defined constraints.
@@ -70,38 +51,28 @@ trait ValidatesInput
         switch ($key) {
             case 'model':
                 $this->validateModel($value);
-                break;
-            case 'temperature':
-            case 'top_p':
-            case 'presence_penalty':
-            case 'frequency_penalty':
-                $this->validateFloat($key, $value);
-                break;
-            case 'max_tokens':
-            case 'n':
-                $this->validateInteger($key, $value);
+                break;  
+            case 'messages':
+                $this->validateMessages($value);
                 break;
             case 'stream':
                 $this->validateBoolean($key, $value);
-                break;
-            case 'messages':
-                $this->validateMessages($value);
                 break;
         }
     }
 
     /**
-     * Validate model name.
+     * Validate model name using the Model enum.
      *
      * @param string $model
      * @throws ValidationException
      */
     protected function validateModel(string $model): void
     {
-        if (!in_array($model, $this->supportedModels, true)) {
-            throw new ValidationException(
-                "Unsupported model: {$model}. Supported models: " . implode(', ', $this->supportedModels)
-            );
+        try {
+            Model::fromString($model);
+        } catch (\InvalidArgumentException $e) {
+            throw new ValidationException($e->getMessage());
         }
     }
 
@@ -121,9 +92,7 @@ trait ValidatesInput
         $float = (float) $value;
         if (isset($this->constraints[$key])) {
             if ($float < $this->constraints[$key]['min'] || $float > $this->constraints[$key]['max']) {
-                throw new ValidationException(
-                    "{$key} must be between {$this->constraints[$key]['min']} and {$this->constraints[$key]['max']}"
-                );
+                throw new ValidationException("{$key} must be between {$this->constraints[$key]['min']} and {$this->constraints[$key]['max']}");
             }
         }
     }

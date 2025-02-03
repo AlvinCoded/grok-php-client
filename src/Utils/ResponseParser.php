@@ -7,6 +7,7 @@ namespace GrokPHP\Utils;
 use GrokPHP\Exceptions\GrokException;
 use GrokPHP\Models\ChatMessage;
 use GrokPHP\Models\ChatCompletion;
+use GrokPHP\Models\EmbeddingResponse;
 use GrokPHP\Models\Image;
 use Psr\Http\Message\ResponseInterface;
 
@@ -42,6 +43,7 @@ class ResponseParser
             'chat' => new ChatMessage($data),
             'completion' => new ChatCompletion($data),
             'image' => new Image($data),
+            'embedding' => new EmbeddingResponse($data),
             default => throw new GrokException("Unknown response type: {$expectedType}"),
         };
     }

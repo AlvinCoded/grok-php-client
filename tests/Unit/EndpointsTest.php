@@ -47,7 +47,7 @@ class EndpointsTest extends TestCase
         ])));
 
         $chat = new Chat($this->config);
-        $response = $chat->send('Test message');
+        $response = $chat->generate('Test message');
 
         $this->assertInstanceOf(ChatMessage::class, $response);
         $this->assertEquals('Test response', $response->getContent());
@@ -66,7 +66,7 @@ class EndpointsTest extends TestCase
             ]
         ])));
 
-        $completions = new Completions($this->httpClient, $this->config);
+        $completions = new Completions($this->config, null);
         $response = $completions->create('Test prompt');
 
         $this->assertInstanceOf(ChatCompletion::class, $response);
@@ -86,9 +86,27 @@ class EndpointsTest extends TestCase
             ]
         ])));
 
-        $requestBuilder = new \GrokPHP\Utils\RequestBuilder();
-        $responseParser = new \GrokPHP\Utils\ResponseParser();
-        $images = new Images($this->httpClient, $this->config, $requestBuilder, $responseParser);
+        $images = new Images($this->config, null);
+        $response = $images->analyze('https://picsum.photos/200/300');
+
+        $this->assertInstanceOf(Image::class, $response);
+        $this->assertEquals('Image analysis result', $response->getContent());
+    }
+
+    public function testEmbeddingsEndpoint(): void
+    {
+        $this->mock->append(new Response(200, [], json_encode([
+            'id' => 'img-123',
+            'choices' => [
+                [
+                    'message' => [
+                        'content' => 'Image analysis result'
+                    ]
+                ]
+            ]
+        ])));
+
+        $images = new Images($this->config, null);
         $response = $images->analyze('https://picsum.photos/200/300');
 
         $this->assertInstanceOf(Image::class, $response);
@@ -114,17 +132,17 @@ class EndpointsTest extends TestCase
     {
         $this->expectException(GrokException::class);
         
-        $completions = new Completions($this->httpClient, $this->config);
-        $completions->create('Test', ['model' => 'invalid-model']);
+        $completions = new Completions($this->config, null);
+        $params = new \GrokPHP\Params();
+        $params->model('invalid-model');
+        $completions->create('Test', $params);
     }
 
     public function testImageAnalysisWithInvalidUrl(): void
     {
         $this->expectException(GrokException::class);
         
-        $requestBuilder = new \GrokPHP\Utils\RequestBuilder();
-        $responseParser = new \GrokPHP\Utils\ResponseParser();
-        $images = new Images($this->httpClient, $this->config, $requestBuilder, $responseParser);
+        $images = new Images($this->config, null);
         $images->analyze('invalid-url');
     }
 
@@ -140,8 +158,10 @@ class EndpointsTest extends TestCase
     {
         $this->expectException(GrokException::class);
         
-        $completions = new Completions($this->httpClient, $this->config);
-        $completions->create('Test', ['max_tokens' => 129000]);
+        $completions = new Completions($this->config, null);
+        $params = new \GrokPHP\Params();
+        $params->maxTokens(129000);
+        $completions->create('Test', $params);
     }
 
     public function testRateLimitHandling(): void

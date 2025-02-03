@@ -13,19 +13,11 @@ use Dotenv\Dotenv;
 class ImagesTest extends TestCase
 {
     private GrokClient $client;
-    private string $apiKey;
     private string $testImageUrl = 'https://picsum.photos/200/300.jpg';
 
     protected function setUp(): void
     {
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
-
-        $this->apiKey = getenv('GROK_API_KEY') ?: '';
-        if (empty($this->apiKey)) {
-            $this->markTestSkipped('No API key available for integration tests');
-        }
-        $this->client = new GrokClient($this->apiKey);
+        $this->client = new GrokClient();
     }
 
     public function testBasicImageAnalysis(): void
