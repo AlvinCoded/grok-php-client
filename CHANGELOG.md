@@ -2,6 +2,25 @@
 
 All notable changes to `grok-php-client` will be documented in this file.
 
+## v1.2.0 - 2025-02-06
+
+### Added
+
+- **Structured Output** support with JSON schema validation
+- `DataModel` base class for PHP attribute-based schema definitions
+- `SchemaProperty` attribute for declarative field configuration
+- `generateStructured()` method in Chat endpoint for schema-constrained responses
+- Automatic response hydration into PHP data objects
+
+### Changes/Fixes
+
+- Enhanced type safety for model parameters using PHP enums
+- Updated embedding handling to support new structured format
+- Improved parameter validation ranges for API compliance
+- Extended documentation for structured output usage patterns
+
+*Implements official xAI structured output specification from [API docs](https://docs.x.ai/docs/guides/structured-outputs)*
+
 ## v1.1.0 - 2025-02-03
 
 ### Added
