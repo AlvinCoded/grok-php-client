@@ -1,0 +1,53 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.2']
+        dependency-version: ['latest', 'lowest']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ matrix.dependency-version }}
+          restore-keys: ${{ runner.os }}-composer-${{ matrix.php-version }}-
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.dependency-version }}" == "lowest" ]; then
+            composer update --prefer-lowest --prefer-stable --no-progress --no-suggest
+          else
+            composer install --no-progress --no-suggest
+          fi
+
+      - name: Run tests
+        run: composer test

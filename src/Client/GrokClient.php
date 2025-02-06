@@ -63,12 +63,24 @@ class GrokClient implements ClientInterface
         $this->config = new Config(array_merge($options, ['api_key' => $apiKey]));
     }
 
+    /**
+     * Sets the current model to be used by the client.
+     *
+     * @param Model $model
+     * @return self
+     */
     public function model(Model $model): self
     {
         $this->currentModel = $model;
         return $this;
     }
 
+    /**
+     * Begin a conversation with Grok AI, optionally with a pre-existing chat history.
+     * 
+     * @param array $history
+     * @return Chat
+     */
     public function beginConvo(array $history = []): Chat
     {
         return $this->chat()->withHistory($history);

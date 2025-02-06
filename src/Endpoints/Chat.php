@@ -11,8 +11,10 @@ use GrokPHP\Params;
 use GrokPHP\Enums\Model;
 use GrokPHP\Traits\HasApiOperations;
 use GrokPHP\Traits\ValidatesInput;
+use GrokPHP\Utils\DataModel;
 use GrokPHP\Utils\RequestBuilder;
 use GrokPHP\Utils\ResponseParser;
+use GrokPHP\Utils\StructuredOutput;
 use GuzzleHttp\Client;
 
 /**
@@ -113,7 +115,7 @@ class Chat
      */
     public function generate(string|array $prompt, ?Params $params = null): ChatMessage
     {
-        $messages = $this->formatPrompt($prompt);
+        $messages = $this->formatPrompt(prompt: $prompt);
         $payload = $this->requestBuilder->buildChatRequest(
             $messages,
             $params?->toArray() ?? [],
@@ -126,6 +128,52 @@ class Chat
         ]);
         
         return $this->responseParser->parse($response, 'chat');
+    }
+
+    /**
+     * Generates a structured response using the specified JSON Schema.
+     * The API response is automatically parsed into an associative array.
+     *
+     * @param string|array $prompt
+     * @param array|string $jsonSchema The JSON Schema that constrains the output.
+     * @param Params|null $params Additional parameters.
+     * @return array|string Parsed JSON structure or raw text if parsing fails.
+     * @throws GrokException
+     */
+    public function generateStructured(string|array $prompt, array|string $jsonSchema, ?Params $params = null): array|string
+    {
+        if (is_string($jsonSchema) && class_exists($jsonSchema)) {
+            if (!is_subclass_of($jsonSchema, DataModel::class)) {
+                throw new GrokException('Invalid schema class');
+            }
+            $schema = $jsonSchema::schema();
+        } else {
+            $schema = $jsonSchema;
+        }
+
+        $structuredOutput = new StructuredOutput($schema);
+        $messages = $this->formatPrompt($prompt);
+        $payload = $this->requestBuilder->buildChatRequest(
+            $messages,
+            $params?->toArray() ?? [],
+            $this->model->value
+        );
+
+        $payload['response_format'] = $structuredOutput->toArray();
+
+        $response = $this->client->post(self::CHAT_ENDPOINT, [
+            'json' => $payload,
+            'headers' => $this->requestBuilder->buildHeaders($this->config->getApiKey()),
+        ]);
+
+        $chatMessage = $this->responseParser->parse($response, 'chat');
+        $decoded = json_decode($chatMessage->getContent(), true);
+
+        if (is_string($schema) && class_exists($schema)) {
+            return (new $schema())->fromArray($decoded);
+        }
+        
+        return $decoded;
     }
 
     /**

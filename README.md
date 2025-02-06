@@ -180,10 +180,78 @@ echo $config->modelSupportsStreaming($model) // true
 echo $config->modelSupportsFunctions($model) // false
 ```
 
+#### _Structured Output_
+
+```php
+<?php
+
+use GrokPHP\Client\GrokClient;
+use GrokPHP\Enums\Model;
+
+// 1. Define schema once
+$jsonSchema = [
+    "type" => "object",
+    "properties" => [
+        "title" => ["type" => "string"],
+        "authors" => ["type" => "array", "items" => ["type" => "string"]],
+        "publication_year" => ["type" => "integer"],
+        "doi" => ["type" => "string"],
+        "keywords" => ["type" => "array", "items" => ["type" => "string"]],
+        "citation_count" => ["type" => "integer"]
+    ],
+    "required" => ["title", "authors"]
+];
+
+
+// 2. Process documents
+$client = new GrokClient();
+
+foreach ($researchPapers as $paperText) {
+    $metadata = $client->chat()->generateStructured($paperText, $jsonSchema);
+    
+    // 3. Directly store structured data
+    $this->database->insertPaper(
+        title: $metadata['title'],
+        authors: $metadata['authors'],
+        year: $metadata['publication_year'] ?? null,
+        doi: $metadata['doi'] ?? '',
+        keywords: $metadata['keywords'] ?? []
+    );
+}
+```
+
+#### _Structured Output (alt. option with PHP class)_
+
+```php
+// Define your schema as a PHP class
+class ResearchPaper extends \GrokPHP\Utils\DataModel 
+{
+    #[SchemaProperty(type: 'string', description: 'Paper title')]
+    public string $title;
+    
+    #[SchemaProperty(type: 'array', description: 'List of authors')]
+    public array $authors;
+    
+    #[SchemaProperty(type: 'string', description: 'Abstract text')]
+    public string $abstract;
+}
+
+// ...then, in your application code
+$result = $client->chat()->generateStructured(
+            "Extract research paper details", 
+             ResearchPaper::class
+          );
+
+// ...and finally, get typed properties
+echo $result->title;
+echo $result->authors[0];
+
+```
+
 
 ## Response Handling
 
-### Chat/Completion Response Methods
+#### _Chat/Completion Response Methods_
 
 ```php
 $response->getContent();       // Get response content
@@ -194,12 +262,18 @@ $response->getModel();         // Get model used
 $response->getUsage();         // Get token usage statistics
 ```
 
-### Image Analysis Response Methods
+#### _Image Analysis Response Methods_
 
 ```php
 $response->getAnalysis();      // Get analysis text
 $response->getImageUrl();      // Get analyzed image URL
 $response->getMetadata();      // Get image metadata
+$response->getUsage();         // Get token usage
+```
+
+#### _Embedding Response Methods_
+```php
+$response->getEmbeddings();    // Get embeddings
 $response->getUsage();         // Get token usage
 ```
 
