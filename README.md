@@ -41,8 +41,7 @@ composer require alvincoded/grok-php-client
 
 ## Quick Start
 
-__Here's how simple it is to use Grok PHP :__  
-<br>
+> **Here's how simple it is to use Grok PHP :**
 
 #### _Chat Completion_
 
@@ -181,12 +180,14 @@ echo $config->modelSupportsFunctions($model) // false
 ```
 
 #### _Structured Output_
-
 ```php
 <?php
 
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Enums\Model;
+
+// Scenario example: A university library needs to process 50,000 research papers into their new digital repository.
+// Each entry requires consistent metadata fields.
 
 // 1. Define schema once
 $jsonSchema = [
@@ -232,8 +233,8 @@ class ResearchPaper extends \GrokPHP\Utils\DataModel
     #[SchemaProperty(type: 'array', description: 'List of authors')]
     public array $authors;
     
-    #[SchemaProperty(type: 'string', description: 'Abstract text')]
-    public string $abstract;
+    #[SchemaProperty(type: 'integer', description: 'Year of publication', required: false)]
+    public int $publicationYear;
 }
 
 // ...then, in your application code
@@ -322,6 +323,7 @@ try {
 <br>
 
 ## Environment Variables
+Add the following to your `.env` file:
 ```
 GROK_API_KEY=your-api-key
 ```
