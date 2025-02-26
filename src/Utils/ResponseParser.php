@@ -16,8 +16,7 @@ use Psr\Http\Message\ResponseInterface;
  * 
  * Parses and processes API responses from Grok AI endpoints.
  *
- * @package GrokPHP\Utils
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Utils.
  */
 class ResponseParser
 {

@@ -16,8 +16,7 @@ use GrokPHP\Endpoints\Images;
  * This interface ensures consistent implementation across different client versions
  * and provides a stable API for dependency injection.
  * 
- * @package GrokPHP\Client
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Client.
  * @see https://docs.x.ai/docs/api-reference
  */
 interface ClientInterface

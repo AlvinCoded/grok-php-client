@@ -9,8 +9,7 @@ namespace GrokPHP\Exceptions;
  * 
  * Exception class for handling API-specific errors from Grok AI.
  * 
- * @package GrokPHP\Exceptions
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Exceptions.
  */
 class ApiException extends GrokException
 {

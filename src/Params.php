@@ -11,8 +11,7 @@ use GrokPHP\Exceptions\GrokException;
  * 
  * Represents the parameters for Grok AI model completions.
  *
- * @package GrokPHP
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP.
  */
 class Params
 {

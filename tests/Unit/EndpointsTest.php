@@ -90,7 +90,7 @@ class EndpointsTest extends TestCase
         $response = $images->analyze('https://picsum.photos/200/300');
 
         $this->assertInstanceOf(Image::class, $response);
-        $this->assertEquals('Image analysis result', $response->getContent());
+        $this->assertEquals('Image analysis result', $response->getAnalysis());
     }
 
     public function testEmbeddingsEndpoint(): void
@@ -110,7 +110,7 @@ class EndpointsTest extends TestCase
         $response = $images->analyze('https://picsum.photos/200/300');
 
         $this->assertInstanceOf(Image::class, $response);
-        $this->assertEquals('Image analysis result', $response->getContent());
+        $this->assertEquals('Image analysis result', $response->getAnalysis());
     }
 
     public function testChatStreamingResponse(): void

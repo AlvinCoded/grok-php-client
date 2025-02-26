@@ -12,8 +12,7 @@ use Exception;
  * Base exception class for all Grok AI PHP package exceptions.
  * Provides common functionality and standardized error handling.
  *
- * @package GrokPHP\Exceptions
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Exceptions.
  */
 class GrokException extends Exception
 {
@@ -32,14 +31,14 @@ class GrokException extends Exception
      *
      * @param string $message Error message
      * @param int $code Error code
-     * @param \Exception|null $previous Previous exception
+     * @param Exception|null $previous Previous exception
      * @param string|null $requestId Associated request ID
      * @param array $context Additional error context
      */
     public function __construct(
         string $message = "",
         int $code = 0,
-        ?\Exception $previous = null,
+        ?Exception $previous = null,
         ?string $requestId = null,
         array $context = []
     ) {

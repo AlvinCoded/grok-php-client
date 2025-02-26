@@ -20,8 +20,7 @@ use GuzzleHttp\Client;
  * 
  * Handles all text completion operations with the Grok AI API.
  *
- * @package GrokPHP\Endpoints
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Endpoints.
  * @see https://docs.x.ai/docs/api-reference#chat-completions
  */
 class Completions
@@ -67,6 +66,8 @@ class Completions
     public function __construct(Config $config, ?Model $model = null)
     {
         $this->config = $config;
+        $this->apiKey = $config->getApiKey();
+        $this->httpClient = new Client();
         
         if (is_string($model)) {
             $this->model = Model::fromString($model);

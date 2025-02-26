@@ -11,8 +11,7 @@ namespace GrokPHP\Utils;
  * It builds the proper response_format payload so that the API
  * will return a JSON string following the provided JSON Schema.
  *
- * @package GrokPHP\Utils
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Utils.
  * @see https://docs.x.ai/docs/guides/structured-outputs
  */
 class StructuredOutput

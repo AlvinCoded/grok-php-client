@@ -9,8 +9,7 @@ namespace GrokPHP\Enums;
  * 
  * Defines the available model options that can be used with the Grok AI API.
  *
- * @package GrokPHP\Enums
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Enums.
  * @see https://docs.x.ai/docs/models
  */
 enum Model: string

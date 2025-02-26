@@ -1,33 +1,37 @@
-<h1 align="center">Grok PHP: The Ultimate PHP Library for Grok AI</h1>
+<h1 align="center">Grok PHP: The 2-in-1 PHP SDK for Grok AI</h1>
 
 <p align="center">
     <a href="https://packagist.org/packages/alvincoded/grok-php-client">
       <img src="https://img.shields.io/packagist/v/alvincoded/grok-php-client" alt="Latest Version">
     </a>
     <a href="https://php.net">
-      <img src="https://img.shields.io/badge/PHP-8.1%2B-blue" alt="PHP Version">
+      <img src="https://img.shields.io/badge/PHP-8.2%2B-blue" alt="PHP Version">
+    </a>
+    <a href="https://laravel.com">
+      <img src="https://img.shields.io/badge/Laravel-11%2B-red" alt="PHP Version">
     </a>
     <a href="LICENSE.md">
       <img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="License">
     </a>
 </p>
 
-Grok PHP is a robust, flexible, and feature-rich PHP library designed to interact seamlessly with the Grok AI API.
+Grok PHP is a 2-in-1 PHP SDK offering seamless integration with Grok AI API for both **framework-agnostic PHP** and **Laravel 11+** applications.
 
 ## Features
 
-- **Seamless Integration:** Elegant PHP-first interface with intuitive methods for Grok AI
+- **Dual Architecture**: Use as framework-agnostic PHP library or first-class Laravel package with extensive error handling
+- **Full API Coverage**: Chat, completions, images, embeddings, and structured outputs
+- **Modern PHP**: Strict types, enums, and attributes for schema definition
+- **Laravel Integration**: Auto-discovery, config publishing, and facade support
 - **Advanced Chat Capabilities:** Full support for multi-turn conversations and real-time streaming
-- **Comprehensive Features:** Text completions, image analysis, and embeddings all in one!
-- **Robust Architecture:** Type-safe implementations with extensive error handling
 - **Model Flexibility:** Support for multiple Grok models (Grok-2, Grok-2-Vision, etc.)
 - **Enterprise Ready:** Secure API handling with proper authentication
-- **Response Management:** Rich response objects with detailed analytics and metadata
 - **Easy Configuration:** Simple setup with minimal dependencies
 
 ## Requirements
 
-- PHP 8.1 or higher
+- PHP 8.2 or higher
+- Laravel 11+ _(For Laravel applications)_
 - [Composer](https://getcomposer.org)
 - [Grok AI API key](https://docs.x.ai/docs/overview)
 
@@ -38,22 +42,24 @@ Install Grok PHP via Composer:
 ```bash
 composer require alvincoded/grok-php-client
 ```
+<img src="https://img.shields.io/badge/new-brightgreen" alt="New" width='20'> _Do the following with __Laravel applications only__:_
+```bash
+php artisan grok:install
+```
+> **Note:** This command publishes the configuration file and adds the relevant environment variables to your `.env` file.
+
 
 ## Quick Start
 
-> **Here's how simple it is to use Grok PHP :**
+__***Framework-agnostic PHP Usage :***__
 
-#### _Chat Completion_
+##### _Chat Completion_
 
 ```php
-<?php
-
-require_once 'vendor/autoload.php';
-
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Params;
 
-$client = new GrokClient();
+$client = new GrokClient($apiKey);
 
 // Simple chat
 $response = $client->chat()->generate("Tell me a joke about AI");
@@ -85,17 +91,13 @@ $response = $chat->send('Give me an example');
 echo $response->text();
 ```
 
-#### _Text Completions_
+##### _Text Completions_
 
 ```php
-<?php
-
-require_once 'vendor/autoload.php';
-
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Params;
 
-$client = new GrokClient();
+$client = new GrokClient($apiKey);
 
 // Basic completion
 $response = $client->completions()->create(
@@ -114,17 +116,13 @@ $responses = $client->completions()->createMultiple(
 $tokenCount = $client->completions()->getTokenCount("Sample text");
 ```
 
-#### _Image Understanding_
+##### _Image Understanding_
 
 ```php
-<?php
-
-require_once 'vendor/autoload.php';
-
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Params;
 
-$client = new GrokClient();
+$client = new GrokClient($apiKey);
 
 // Basic image analysis
 $response = $client->images()->analyze('https://picsum.photos/200/300');
@@ -139,32 +137,24 @@ $response = $client->images()->analyze(
 // Check image content
 $containsPeople = $response->containsContent('person');
 ```
-#### _Embeddings_
+##### _Embeddings_
 
 ```php
-<?php
-
-require_once 'vendor/autoload.php';
-
 use GrokPHP\Client\GrokClient;
 
-$client = new GrokClient();
+$client = new GrokClient($apiKey);
 
 $embeddingResponse = $client->embeddings()->create('Hello, world!');
 $embeddings = $embeddingResponse->getEmbeddings();
 ```
 
-#### _Model-specific executions_
+##### _Model-specific executions_
 
 ```php
-<?php
-
-require_once 'vendor/autoload.php';
-
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Enums\Model;
 
-$client = new GrokClient();
+$client = new GrokClient($apiKey);
 
 // Simple chat (with model specification)
 $response = $client->model(Model::GROK_2_1212)->generate('Tell me a joke about AI');
@@ -179,10 +169,8 @@ echo $config->modelSupportsStreaming($model) // true
 echo $config->modelSupportsFunctions($model) // false
 ```
 
-#### _Structured Output_
+##### _Structured Output_
 ```php
-<?php
-
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Enums\Model;
 
@@ -205,7 +193,7 @@ $jsonSchema = [
 
 
 // 2. Process documents
-$client = new GrokClient();
+$client = new GrokClient($apiKey);
 
 foreach ($researchPapers as $paperText) {
     $metadata = $client->chat()->generateStructured($paperText, $jsonSchema);
@@ -221,7 +209,7 @@ foreach ($researchPapers as $paperText) {
 }
 ```
 
-#### _Structured Output (alt. option with PHP class)_
+##### _Structured Output (alt. option with PHP class)_
 
 ```php
 // Define your schema as a PHP class
@@ -247,6 +235,35 @@ $result = $client->chat()->generateStructured(
 echo $result->title;
 echo $result->authors[0];
 
+```
+
+<img src="https://img.shields.io/badge/new-brightgreen" alt="New" width='20'> __***Laravel Usage :***__
+
+The coolest part about using Laravel with Grok PHP? You don't have to learn any new tricks! Just use it the same way you would with the framework-agnostic PHP and you're good to go. It's like magic, but better! ✨
+
+```php
+use GrokPHP\Enums\Model;
+use GrokPHP\Facades\Grok;
+use GrokPHP\Client\GrokClient;
+use GrokPHP\Params;
+
+public function __construct(
+private GrokClient $grok
+) {}
+
+public function analyzeImage(): Response
+{
+    return $this->grok->model(Model::GROK_2_VISION_1212)->images()->analyze('https://picsum.photos/200/300.jpg');
+}
+
+// Using the facade
+public function ask(): Response
+{
+    $prompt = "Do you know the muffin man?";
+    $params =  Params::create()->maxTokens(300)->temperature(0.8);
+
+    return Grok::model(Model::GROK_2_1212)->chat()->generate($prompt, $params);
+}
 ```
 
 
@@ -289,7 +306,6 @@ try {
     echo "Error: " . $e->getMessage();
 }
 ```
-<br>
 
 ## Supported Models
 
@@ -324,8 +340,12 @@ try {
 
 ## Environment Variables
 Add the following to your `.env` file:
-```
+```bash
 GROK_API_KEY=your-api-key
+
+# Include if Laravel is used
+GROK_DEFAULT_MODEL=grok-2-latest
+GROK_BASE_URL=https://api.x.ai
 ```
 <br>
 

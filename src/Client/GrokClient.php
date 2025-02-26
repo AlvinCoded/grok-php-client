@@ -18,16 +18,10 @@ use GrokPHP\Enums\Model;
  * 
  * Main client class for interacting with the Grok AI API
  * 
- * @package GrokPHP\Client
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Client.
  */
 class GrokClient implements ClientInterface
 {
-    /**
-     * @var string $apiKey The API key used for authentication with the X.AI API
-     */
-    private string $apiKey;
-
     /**
      * @var string $baseUrl The base URL for the X.AI API endpoints
      */
@@ -49,18 +43,15 @@ class GrokClient implements ClientInterface
      * @param array $options
      * @throws GrokException
      */
-    public function __construct(array $options = [])
+    public function __construct(private ?string $apiKey = null, array $options = [])
     {
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
+        $this->apiKey = $apiKey ?? getenv('GROK_API_KEY') ?: null;
 
-        $apiKey = getenv('GROK_API_KEY');
-        if (empty($apiKey)) {
+        if (is_null($this->apiKey)) {
             throw new GrokException('API key is required');
         }
 
-        $this->apiKey = $apiKey;
-        $this->config = new Config(array_merge($options, ['api_key' => $apiKey]));
+        $this->config = new Config(array_merge($options, ['api_key' => $this->apiKey]));
     }
 
     /**

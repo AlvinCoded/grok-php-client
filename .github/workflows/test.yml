@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        php-version: ['8.1', '8.2']
+        php-version: ['8.2', '8.3', '8.4']
         dependency-version: ['latest', 'lowest']
 
     steps:
@@ -32,7 +32,7 @@ jobs:
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_ENV
 
       - name: Cache Composer dependencies
         uses: actions/cache@v3

@@ -20,7 +20,7 @@ class ClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new GrokClient();
+        $this->client = new GrokClient($_ENV['API_KEY']);
     }
 
     /**
@@ -87,7 +87,7 @@ class ClientTest extends TestCase
             'max_retries' => 5,
         ];
 
-        $client = new GrokClient($options);
+        $client = new GrokClient($this->apiKey, $options);
         $config = $client->getConfig();
 
         $this->assertEquals(60, $config->get('timeout'));

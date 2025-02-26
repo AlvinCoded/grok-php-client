@@ -14,8 +14,7 @@ use JsonSerializable;
  * 
  * Represents a completion response from the Grok AI API.
  *
- * @package GrokPHP\Models
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Models.
  * @see https://docs.x.ai/docs/api-reference#chat-completions
  */
 class ChatCompletion implements JsonSerializable

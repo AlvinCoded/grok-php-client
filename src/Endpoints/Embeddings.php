@@ -21,8 +21,7 @@ use GuzzleHttp\Client;
  * Represents the Embeddings endpoint for creating vector representations of text.
  * This class handles embedding generation requests to the AI model.
  * 
- * @package GrokPHP\Endpoints
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Endpoints.
  * @see https://docs.x.ai/docs/api-reference#create-embeddings
  */
 class Embeddings
@@ -69,6 +68,8 @@ class Embeddings
     public function __construct(Config $config, ?Model $model = null)
     {
         $this->config = $config;
+        $this->apiKey = $config->getApiKey();
+        $this->httpClient = new Client();
         
         if (is_string($model)) {
             $this->model = Model::fromString($model);

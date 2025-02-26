@@ -98,7 +98,7 @@ class RequestBuilder
                 'role' => 'user',
                 'content' => [
                     [
-                        'type' => 'image',
+                        'type' => 'image_url',
                         'image_url' => ['url' => $imageUrl]
                     ],
                     [
@@ -172,7 +172,6 @@ class RequestBuilder
                 'Authorization' => "Bearer {$apiKey}",
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-                'User-Agent' => 'Grok-PHP/1.0',
             ],
             $additionalHeaders
         );

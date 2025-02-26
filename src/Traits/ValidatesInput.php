@@ -12,8 +12,7 @@ use GrokPHP\Exceptions\ValidationException;
  * 
  * Provides input validation functionality for Grok AI API parameters.
  *
- * @package GrokPHP\Traits
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Traits.
  * 
  */
 trait ValidatesInput

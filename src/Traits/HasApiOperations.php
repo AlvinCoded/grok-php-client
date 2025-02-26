@@ -15,8 +15,7 @@ use Psr\Http\Message\ResponseInterface;
  * 
  * Provides common API operation functionality for Grok AI endpoints.
  *
- * @package GrokPHP\Traits
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Traits.
  */
 trait HasApiOperations
 {

@@ -13,8 +13,7 @@ use ReflectionClass;
  * It provides common structure and functionality that all data models should inherit.
  *
  * @abstract DataModel
- * @package GrokPHP\Utils
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Utils.
  */
 abstract class DataModel
 {

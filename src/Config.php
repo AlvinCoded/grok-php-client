@@ -12,8 +12,7 @@ use GrokPHP\Exceptions\GrokException;
  * 
  * Configuration management for Grok AI API client.
  *
- * @package GrokPHP
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP.
  */
 class Config
 {

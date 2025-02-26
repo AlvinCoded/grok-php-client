@@ -43,7 +43,7 @@ class ModelsTest extends TestCase
             'id' => 'compl_123',
             'object' => 'chat.completion',
             'created' => time(),
-            'model' => 'grok-2-1212',
+            'model' => 'grok-2-latest',
             'provider' => 'openrouter',
             'choices' => [
                 [
@@ -68,7 +68,7 @@ class ModelsTest extends TestCase
         $this->imageData = [
             'id' => 'img_123',
             'created' => time(),
-            'model' => 'grok-vision',
+            'model' => 'grok-2-vision-1212',
             'choices' => [
                 [
                     'message' => [
@@ -99,7 +99,7 @@ class ModelsTest extends TestCase
         $message = new ChatMessage($this->chatMessageData);
         
         $this->assertEquals('msg_123', $message->getId());
-        $this->assertEquals('grok-2-1212', $message->getModel());
+        $this->assertEquals('grok-2-latest', $message->getModel());
         $this->assertEquals('Test response', $message->getContent());
         $this->assertEquals('assistant', $message->getRole());
         $this->assertEquals('stop', $message->getFinishReason());
@@ -120,12 +120,15 @@ class ModelsTest extends TestCase
         $this->assertEquals(500, $completion->getUsage()['latency_ms']);
     }
 
+    /**
+     * @covers \GrokPHP\Models\Image
+     */
     public function testImageCreation(): void
     {
         $image = new Image($this->imageData);
         
         $this->assertEquals('img_123', $image->getId());
-        $this->assertEquals('grok-vision', $image->getModel());
+        $this->assertEquals('grok-2-vision-1212', $image->getModel());
         $this->assertEquals('Image analysis result', $image->getAnalysis());
         $this->assertEquals('https://example.com/image.jpg', $image->getImageUrl());
         $this->assertEquals(50, $image->getUsage()['total_tokens']);

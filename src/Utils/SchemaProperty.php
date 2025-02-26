@@ -11,8 +11,7 @@ use Attribute;
  * This attribute can only be applied to properties.
  * 
  * @see \Attribute
- * @package GrokPHP\Utils
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Utils.
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 

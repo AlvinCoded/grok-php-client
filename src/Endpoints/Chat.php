@@ -22,8 +22,7 @@ use GuzzleHttp\Client;
  * 
  * Handles all chat-related operations with the Grok AI API.
  *
- * @package GrokPHP\Endpoints
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Endpoints.
  * @see https://docs.x.ai/docs/api-reference#chat-completions
  */
 class Chat
@@ -74,6 +73,8 @@ class Chat
     public function __construct(Config $config, ?Model $model = null)
     {
         $this->config = $config;
+        $this->apiKey = $config->getApiKey();
+        $this->httpClient = new Client();
 
         if (is_string($model)) {
             $this->model = Model::fromString($model);

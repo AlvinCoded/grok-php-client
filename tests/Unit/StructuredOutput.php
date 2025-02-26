@@ -60,9 +60,13 @@ class StructuredOutputTest extends TestCase
             );
 
         $this->assertInstanceOf(UserData::class, $response);
-        $this->assertEquals('Alice Smith', $response->name);
-        $this->assertEquals(28, $response->age);
-        $this->assertEquals('alice@example.com', $response->email);
+        if (is_object($response)) {     
+            $this->assertEquals('Alice Smith', $response->name);
+            $this->assertEquals(28, $response->age);
+            $this->assertEquals('alice@example.com', $response->email);
+        } else {
+            $this->fail('Expected response to be an object, got ' . gettype($response));
+        }
     }
 
     public function testNestedStructuredOutput(): void
@@ -76,9 +80,13 @@ class StructuredOutputTest extends TestCase
             );
 
         $this->assertInstanceOf(ProductInfo::class, $response);
-        $this->assertEquals('iPhone 15', $response->productName);
-        $this->assertEquals('Apple', $response->manufacturer);
-        $this->assertEquals(2023, $response->releaseYear);
+        if (is_object($response)) {
+            $this->assertEquals('iPhone 15', $response->productName);
+            $this->assertEquals('Apple', $response->manufacturer);
+            $this->assertEquals(2023, $response->releaseYear);
+        } else {
+            $this->fail('Expected response to be an object, got ' . gettype($response));
+        }
     }
 
     public function testStructuredOutputWithParameters(): void
@@ -97,7 +105,11 @@ class StructuredOutputTest extends TestCase
             );
 
         $this->assertInstanceOf(UserData::class, $response);
-        $this->assertEquals(45, $response->age);
+        if (is_object($response)) {
+            $this->assertEquals(45, $response->age);
+        } else {
+            $this->fail('Expected response to be an object, got ' . gettype($response));
+        }
     }
 
     public function testInvalidSchemaHandling(): void
@@ -123,7 +135,11 @@ class StructuredOutputTest extends TestCase
             );
 
         $this->assertInstanceOf(UserData::class, $response);
-        $this->assertNull($response->email);
+        if (is_object($response)) {
+            $this->assertNull($response->email);
+        } else {
+            $this->fail('Expected response to be an object, got ' . gettype($response));
+        }
     }
 }
 

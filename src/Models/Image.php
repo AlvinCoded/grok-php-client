@@ -16,8 +16,7 @@ use JsonSerializable;
  * This model handles the response from image understanding capabilities
  * through the chat completions endpoint.
  *
- * @package GrokPHP\Models
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Models.
  * @see https://docs.x.ai/docs/api-reference#chat-completions
  */
 class Image implements JsonSerializable
@@ -120,7 +119,12 @@ class Image implements JsonSerializable
      */
     public function getAnalysis(): string
     {
-        return $this->choices[0]['message']['content'] ?? '';
+        $content = $this->choices[0]['message']['content'] ?? [];
+        if (is_array($content)) {
+            $textContent = array_filter($content, fn($item) => $item['type'] === 'text');
+            return implode(' ', array_column($textContent, 'text'));
+        }
+        return '';
     }
 
     /**
@@ -138,9 +142,9 @@ class Image implements JsonSerializable
      *
      * @return Model
      */
-    public function getModel(): Model
+    public function getModel(): string
     {
-        return $this->model;
+        return $this->model->value;
     }
 
     /**

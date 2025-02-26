@@ -13,8 +13,7 @@ use JsonSerializable;
  * 
  * Handles the response from embedding capabilities through the embeddings endpoint.
  *
- * @package GrokPHP\Models
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Models.
  * @see https://docs.x.ai/docs/api-reference#create-embeddings
  */
 class EmbeddingResponse implements JsonSerializable

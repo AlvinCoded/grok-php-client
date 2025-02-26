@@ -15,8 +15,7 @@ use JsonSerializable;
  * Represents a chat message response from the Grok AI API.
  * Handles both standard chat responses and streaming responses.
  *
- * @package GrokPHP\Models
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Models.
  * @see https://docs.x.ai/docs/api-reference#chat-completions
  */
 class ChatMessage implements JsonSerializable

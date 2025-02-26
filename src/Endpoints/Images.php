@@ -8,6 +8,7 @@ use GrokPHP\Config;
 use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\GrokException;
 use GrokPHP\Models\ChatMessage;
+use GrokPHP\Models\Image;
 use GrokPHP\Params;
 use GrokPHP\Traits\HasApiOperations;
 use GrokPHP\Traits\ValidatesInput;
@@ -21,8 +22,7 @@ use GuzzleHttp\Exception\GuzzleException;
  * 
  * Handles all image understanding operations with the Grok AI API through chat completions.
  *
- * @package GrokPHP\Endpoints
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Endpoints.
  * @see https://docs.x.ai/docs/api-reference#chat-completions
  */
 class Images
@@ -73,7 +73,9 @@ class Images
     public function __construct(Config $config, ?Model $model = null)
     {
         $this->config = $config;
-        
+        $this->apiKey = $config->getApiKey();
+        $this->httpClient = new Client();
+
         if (is_string($model)) {
             $this->model = Model::fromString($model);
         } elseif ($model instanceof Model) {
@@ -82,10 +84,6 @@ class Images
             $this->model = Model::default();
         }
 
-        $this->client = new Client([
-            'base_uri' => $config->getBaseUrl(),
-            'timeout' => $config->get('timeout'),
-        ]);
         $this->requestBuilder = new RequestBuilder();
         $this->responseParser = new ResponseParser();
     }
@@ -96,10 +94,10 @@ class Images
      * @param string $imageUrl URL of the image to analyze
      * @param string|null $prompt Optional text prompt for specific analysis
      * @param Params|null $params Additional params for analysis
-     * @return ChatMessage
+     * @return Image
      * @throws GrokException
      */
-    public function analyze(string $imageUrl, ?string $prompt = null, ?Params $params = null): ChatMessage
+    public function analyze(string $imageUrl, ?string $prompt = null, ?Params $params = null): Image
     {
         $this->validateImageUrl($imageUrl);
 

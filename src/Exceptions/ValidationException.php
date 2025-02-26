@@ -9,8 +9,7 @@ namespace GrokPHP\Exceptions;
  * 
  * Exception class for handling input validation errors.
  * 
- * @package GrokPHP\Exceptions
- * @author Alvin Panford <panfordalvin@gmail.com>
+ * @package GrokPHP\Exceptions.
  */
 class ValidationException extends GrokException
 {
