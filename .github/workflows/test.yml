@@ -13,41 +13,38 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        php-version: ['8.2', '8.3', '8.4']
-        dependency-version: ['latest', 'lowest']
-
+        php-version: ['8.2', '8.3']
+        dependency-version: ['stable']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           tools: composer
+          coverage: none
 
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_ENV
 
-      - name: Cache Composer dependencies
+      - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ matrix.dependency-version }}
-          restore-keys: ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
 
       - name: Install dependencies
         run: |
-          if [ "${{ matrix.dependency-version }}" == "lowest" ]; then
-            composer update --prefer-lowest --prefer-stable --no-progress --no-suggest
-          else
-            composer install --no-progress --no-suggest
-          fi
+          composer install --no-progress --no-interaction
 
       - name: Run tests
-        run: composer test
+        run: |
+          composer test

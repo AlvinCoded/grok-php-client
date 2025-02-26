@@ -6,8 +6,8 @@ namespace GrokPHP\Laravel;
 
 use Illuminate\Support\ServiceProvider;
 use GrokPHP\Client\GrokClient;
-use GrokPHP\Console\InstallCommand;
 use GrokPHP\Enums\Model;
+use GrokPHP\Laravel\Console\Commands\InstallCommand;
 
 class GrokServiceProvider extends ServiceProvider
 {
@@ -40,10 +40,6 @@ class GrokServiceProvider extends ServiceProvider
             $this->commands([
                 InstallCommand::class,
             ]);
-
-            $this->publishes([
-                __DIR__.'/../../config/grok.php' => config_path('grok.php'),
-            ], 'grok');
         }
     }
 }

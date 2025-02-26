@@ -33,12 +33,14 @@
     },
     "autoload": {
         "psr-4": {
-            "GrokPHP\\": "src/"
+            "GrokPHP\\": "src/",
+            "GrokPHP\\Laravel\\Console\\Commands\\": "src/Laravel/Console/Commands/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "Tests\\Unit\\": "tests/Unit/"
         }
     },
     "scripts": {
@@ -47,9 +49,7 @@
         "phpstan": "phpstan analyse src tests",
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
-        "post-autoload-dump": [
-            "@php artisan package:discover --ansi"
-        ]
+       "post-autoload-dump": []
     },
     "config": {
         "sort-packages": true,
