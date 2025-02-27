@@ -20,7 +20,8 @@ class ClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new GrokClient($_ENV['API_KEY']);
+        parent::setUp();
+        $this->client = new GrokClient($this->apiKey);
     }
 
     /**

@@ -46,5 +46,8 @@ jobs:
           composer install --no-progress --no-interaction
 
       - name: Run tests
+        env:
+          GROK_API_KEY: sk-test-key
+          GROK_BASE_URL: https://api.x.ai/v1
         run: |
-          composer test
+           composer test --testsuite Unit

@@ -16,7 +16,10 @@ class CompletionsTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new GrokClient();
+        parent::setUp();
+        $dotenv = Dotenv::createImmutable(__DIR__);
+        $dotenv->load();
+        $this->client = new GrokClient(getenv('GROK_API_KEY'));
     }
 
     public function testBasicCompletion(): void

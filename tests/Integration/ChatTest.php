@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
+use Dotenv\Dotenv;
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Models\ChatMessage;
 use GrokPHP\Exceptions\GrokException;
@@ -16,7 +17,10 @@ class ChatTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new GrokClient();
+        parent::setUp();
+        $dotenv = Dotenv::createImmutable(__DIR__);
+        $dotenv->load();
+        $this->client = new GrokClient(getenv('GROK_API_KEY'));
     }
 
     public function testBasicChatCompletion(): void

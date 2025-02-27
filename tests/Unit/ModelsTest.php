@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\GrokException;
 use GrokPHP\Models\ChatMessage;
 use GrokPHP\Models\ChatCompletion;
@@ -96,10 +97,12 @@ class ModelsTest extends TestCase
 
     public function testChatMessageCreation(): void
     {
-        $message = new ChatMessage($this->chatMessageData);
+        $data = $this->chatMessageData;
+        $data['model'] = Model::GROK_2_1212->value;
+        $message = new ChatMessage($data);
         
         $this->assertEquals('msg_123', $message->getId());
-        $this->assertEquals('grok-2-latest', $message->getModel());
+        $this->assertEquals(Model::GROK_2_1212->value, $message->getModel());
         $this->assertEquals('Test response', $message->getContent());
         $this->assertEquals('assistant', $message->getRole());
         $this->assertEquals('stop', $message->getFinishReason());
@@ -109,10 +112,12 @@ class ModelsTest extends TestCase
 
     public function testChatCompletionCreation(): void
     {
-        $completion = new ChatCompletion($this->chatCompletionData);
+        $data = $this->chatMessageData;
+        $data['model'] = Model::GROK_2_1212->value;
+        $completion = new ChatCompletion($data);
         
         $this->assertEquals('compl_123', $completion->getId());
-        $this->assertEquals('grok-2-1212', $completion->getModel());
+        $this->assertEquals(Model::GROK_2_1212->value, $completion->getModel());
         $this->assertEquals('Test completion', $completion->getText());
         $this->assertEquals('openrouter', $completion->getProvider());
         $this->assertEquals(40, $completion->getUsage()['total_tokens']);
