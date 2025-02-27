@@ -1,6 +1,6 @@
 {
     "name": "alvincoded/grok-php-client",
-    "description": "A robust and feature-rich 2-in-1 PHP SDK for the Grok AI API",
+    "description": "A 2-in-1 PHP SDK to interact with the Grok AI API for both framework-agnostic PHP and Laravel applications",
     "type": "library",
     "license": "MIT",
     "keywords": ["grok", "ai", "xai", "machine learning", "artificial intelligence", "laravel", "api", "sdk"],
@@ -39,8 +39,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/",
-            "Tests\\Unit\\": "tests/Unit/"
+            "Tests\\": "tests/"
         }
     },
     "scripts": {

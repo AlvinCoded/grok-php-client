@@ -7,19 +7,18 @@ namespace Tests\Unit;
 use GrokPHP\Client\GrokClient;
 use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\GrokException;
-use GrokPHP\Models\ChatMessage;
 use GrokPHP\Params;
-use GrokPHP\Utils\DataModel;
-use GrokPHP\Utils\SchemaProperty;
 use PHPUnit\Framework\TestCase;
 
 class StructuredOutputTest extends TestCase
 {
+    private string $apiKey = 'test-api-key';
     private GrokClient $client;
 
     protected function setUp(): void
     {
-        $this->client = new GrokClient($_ENV['API_KEY']);
+        parent::setUp();
+        $this->client = new GrokClient($this->apiKey);
     }
 
     public function testArrayBasedStructuredOutput(): void
@@ -141,32 +140,4 @@ class StructuredOutputTest extends TestCase
             $this->fail('Expected response to be an object, got ' . gettype($response));
         }
     }
-}
-
-// Test Data Models
-class UserData extends DataModel
-{
-    #[SchemaProperty(type: 'string', description: 'Full name of user')]
-    public string $name;
-    
-    #[SchemaProperty(type: 'integer', description: 'Age in years')]
-    public int $age;
-    
-    #[SchemaProperty(type: 'string', required: false)]
-    public ?string $email = null;
-}
-
-class ProductInfo extends DataModel
-{
-    #[SchemaProperty(type: 'string')]
-    public string $productName;
-    
-    #[SchemaProperty(type: 'string')]
-    public string $manufacturer;
-    
-    #[SchemaProperty(type: 'integer')]
-    public int $releaseYear;
-    
-    #[SchemaProperty(type: 'string', description: 'Screen size')]
-    public string $screenSize;
 }

@@ -125,9 +125,4 @@ enum Model: string
         return self::GROK_2_1212;
     }
 
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-
 }
