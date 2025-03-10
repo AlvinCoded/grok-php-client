@@ -47,7 +47,7 @@ jobs:
 
       - name: Run tests
         env:
-          GROK_API_KEY: sk-test-key
-          GROK_BASE_URL: https://api.x.ai/
+          GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+          GROK_BASE_URL: ${{ secrets.GROK_BASE_URL }}
         run: |
-           composer test --testsuite Unit
+           composer test -- --testsuite Unit
