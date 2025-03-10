@@ -2,6 +2,39 @@
 
 All notable changes to `grok-php-client` will be documented in this file.
 
+## v1.3.0 - 2025-03-10
+
+### v1.3.0 - 2025-02-26
+
+#### Added
+
+- **Laravel 11+ Integration** as a first-class framework implementation
+- Laravel Service Provider and Facade for seamless integration
+- `grok:install` Artisan command for configuration setup
+- Automatic environment configuration (.env) management
+- Publishable configuration file with base URL customization
+- Dependency injection support via Laravel's service container
+- Framework-specific testing scaffolding
+
+#### Fixed
+
+- Complete test suite overhaul with proper API mocking
+- Resolved all environment variable handling issues
+- Fixed streaming callback type declarations
+- Addressed enum serialization/deserialization errors
+- Corrected image URL validation logic
+- Fixed parameter validation ranges across all endpoints
+- Resolved 40+ test errors from previous implementation
+
+#### Changed
+
+- **BC Break:** Configuration structure now separates core and Laravel-specific options
+- Updated CI/CD pipeline to handle framework-specific tests
+- Improved error messages for API key validation
+- Refactored HTTP client handling for better test isolation
+
+*Upgrade Note: Existing users should run `php artisan grok:install` after upgrading for new configuration format.*
+
 ## v1.2.0 - 2025-02-06
 
 ### Added
