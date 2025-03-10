@@ -18,9 +18,12 @@ class ChatTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $dotenv = Dotenv::createImmutable(__DIR__);
-        $dotenv->load();
-        $this->client = new GrokClient(getenv('GROK_API_KEY'));
+        $apiKey = $_ENV['GROK_API_KEY'] ?? getenv('GROK_API_KEY');
+        $this->client = new GrokClient($apiKey);
+        
+        if (empty($apiKey)) {
+            $this->markTestSkipped('GROK_API_KEY is not set in environment variables.');
+        }
     }
 
     public function testBasicChatCompletion(): void

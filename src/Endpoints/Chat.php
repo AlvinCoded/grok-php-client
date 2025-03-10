@@ -101,9 +101,12 @@ class Chat
      */
     public function send(string $message, ?Params $params = null): ChatMessage
     {
+        if (empty($message)) {
+            throw new GrokException('Message cannot be empty');
+        }
         $this->history[] = ['role' => 'user', 'content' => $message];
         $response = $this->generate($this->history, $params);
-        $this->history[] = ['role' => 'assistant', 'content' => $response->text()];
+        $this->history[] = ['role' => 'assistant', 'content' => $response->getContent()];
         return $response;
     }
 
@@ -170,10 +173,10 @@ class Chat
         $chatMessage = $this->responseParser->parse($response, 'chat');
         $decoded = json_decode($chatMessage->getContent(), true);
 
-        if (is_string($schema) && class_exists($schema)) {
-            return (new $schema())->fromArray($decoded);
+        if (is_string($jsonSchema) && class_exists($jsonSchema)) {
+            return (new $jsonSchema())->fromArray($decoded)->toArray();
         }
-        
+
         return $decoded;
     }
 
@@ -248,8 +251,15 @@ class Chat
             'stream' => true,
         ]);
 
-        foreach ($response->getBody() as $chunk) {
-            $callback($chunk);
+        $body = $response->getBody();
+        while (!$body->eof()) {
+            $chunk = $body->read(1024);
+            $lines = explode("\n", $chunk);
+            foreach ($lines as $line) {
+                if (!empty($line)) {
+                    $callback($line);
+                }
+            }
         }
     }
 
@@ -266,4 +276,17 @@ class Chat
         }
         return $prompt;
     }
+
+    /**
+     * Set the HTTP client (for testing purposes).
+     *
+     * @param Client $client
+     * @return self
+     */
+    public function setHttpClient(Client $client): self
+    {
+        $this->client = $client;
+        return $this;
+    }
+
 }

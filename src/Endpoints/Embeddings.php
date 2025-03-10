@@ -111,4 +111,16 @@ class Embeddings
 
         return $this->responseParser->parse($response, 'embedding');
     }
+
+    /**
+     * Set the HTTP client (for testing purposes).
+     *
+     * @param Client $client
+     * @return self
+     */
+    public function setHttpClient(Client $client): self
+    {
+        $this->client = $client;
+        return $this;
+    }
 }

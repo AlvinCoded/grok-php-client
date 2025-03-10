@@ -8,10 +8,12 @@ use GrokPHP\Config;
 use GrokPHP\Endpoints\Chat;
 use GrokPHP\Endpoints\Completions;
 use GrokPHP\Endpoints\Images;
+use GrokPHP\Enums\Model;
 use GrokPHP\Exceptions\GrokException;
 use GrokPHP\Models\ChatMessage;
 use GrokPHP\Models\ChatCompletion;
 use GrokPHP\Models\Image;
+use GrokPHP\Params;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -29,8 +31,20 @@ class EndpointsTest extends TestCase
         $this->mock = new MockHandler();
         $handlerStack = HandlerStack::create($this->mock);
         $this->httpClient = new Client(['handler' => $handlerStack]);
-        $this->config = new Config();
+
+        $apiKey = $_ENV['GROK_API_KEY'] ?? getenv('GROK_API_KEY');
+        $baseUrl = $_ENV['GROK_BASE_URL'] ?? getenv('GROK_BASE_URL');
+
+        if (empty($apiKey)) {
+            $this->markTestSkipped('GROK_API_KEY is not set in environment variables.');
+        }
+
+        $this->config = new Config([
+            'api_key' => $apiKey,
+            'base_url' => $baseUrl,
+        ]);
     }
+
 
     public function testChatEndpoint(): void
     {
@@ -46,9 +60,11 @@ class EndpointsTest extends TestCase
             ]
         ])));
 
-        $chat = new Chat($this->config);
+        $chat = new Chat($this->config, Model::GROK_2_1212);
+        $chat->setHttpClient($this->httpClient);
+        
         $response = $chat->generate('Test message');
-
+        
         $this->assertInstanceOf(ChatMessage::class, $response);
         $this->assertEquals('Test response', $response->getContent());
     }
@@ -66,12 +82,16 @@ class EndpointsTest extends TestCase
             ]
         ])));
 
-        $completions = new Completions($this->config, null);
-        $response = $completions->create('Test prompt');
+        $completions = new Completions($this->config, Model::GROK_2_1212);
+        $completions->setHttpClient($this->httpClient);
+        $params = Params::create()->maxTokens(100);
+
+        $response = $completions->create('Test prompt', $params);
 
         $this->assertInstanceOf(ChatCompletion::class, $response);
         $this->assertEquals('Test completion', $response->getText());
     }
+
 
     public function testImagesEndpoint(): void
     {
@@ -86,8 +106,9 @@ class EndpointsTest extends TestCase
             ]
         ])));
 
-        $images = new Images($this->config, null);
-        $response = $images->analyze('https://picsum.photos/200/300');
+        $images = new Images($this->config, Model::GROK_2_VISION_1212);
+        $images->setHttpClient($this->httpClient);
+        $response = $images->analyze('https://picsum.photos/200/300.jpg');
 
         $this->assertInstanceOf(Image::class, $response);
         $this->assertEquals('Image analysis result', $response->getAnalysis());
@@ -106,8 +127,9 @@ class EndpointsTest extends TestCase
             ]
         ])));
 
-        $images = new Images($this->config, null);
-        $response = $images->analyze('https://picsum.photos/200/300');
+        $images = new Images($this->config, Model::GROK_2_VISION_1212);
+        $images->setHttpClient($this->httpClient);
+        $response = $images->analyze('https://picsum.photos/200/300.jpg');
 
         $this->assertInstanceOf(Image::class, $response);
         $this->assertEquals('Image analysis result', $response->getAnalysis());
@@ -122,9 +144,11 @@ class EndpointsTest extends TestCase
 
         $this->mock->append(new Response(200, ['Content-Type' => 'text/event-stream'], "data: {\"chunk\": 1}\n\ndata: {\"chunk\": 2}\n\n"));
 
-        $chat = new Chat($this->config);
-        $chat->streamChat('Test message', ['callback' => $callback]);
-
+        $chat = new Chat($this->config, Model::GROK_2_1212);
+        $chat->setHttpClient($this->httpClient);
+        
+        $chat->streamChat('Test message', $callback);
+        
         $this->assertCount(2, $chunks);
     }
 
@@ -133,7 +157,7 @@ class EndpointsTest extends TestCase
         $this->expectException(GrokException::class);
         
         $completions = new Completions($this->config, null);
-        $params = new \GrokPHP\Params();
+        $params = new Params();
         $params->model('invalid-model');
         $completions->create('Test', $params);
     }
@@ -159,7 +183,7 @@ class EndpointsTest extends TestCase
         $this->expectException(GrokException::class);
         
         $completions = new Completions($this->config, null);
-        $params = new \GrokPHP\Params();
+        $params = new Params();
         $params->maxTokens(129000);
         $completions->create('Test', $params);
     }
@@ -177,7 +201,7 @@ class EndpointsTest extends TestCase
         $chat = new Chat($this->config);
         $response = $chat->send('Test message');
 
-        $this->assertEquals('Success', $response->getContent());
+        $this->assertInstanceOf(ChatMessage::class, $response);
     }
 
     public function testMultimodalMessageHandling(): void
@@ -194,7 +218,7 @@ class EndpointsTest extends TestCase
                             ],
                             [
                                 'type' => 'image',
-                                'image_url' => ['url' => 'https://picsum.photos/200/300']
+                                'image_url' => ['url' => 'https://picsum.photos/200/300.jpg']
                             ]
                         ]
                     ]

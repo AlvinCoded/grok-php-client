@@ -19,7 +19,7 @@ class Config
     /**
      * @var string Current API version
      */
-    private string $apiVersion = 'v1';
+    private string $apiVersion = '';
 
     /**
      * @var array Default configuration options
@@ -29,7 +29,6 @@ class Config
         'connect_timeout' => 10,
         'max_retries' => 3,
         'retry_delay' => 1000,
-        'base_url' => 'https://api.x.ai',
         'debug' => false,
         'stream_buffer_size' => 1024,
     ];
@@ -39,21 +38,26 @@ class Config
      */
     private array $config;
 
+    private function loadConfig(): array
+    {
+        return include __DIR__ . '/config/grok.php';
+    }
+
     /**
      * Config constructor.
      *
-     * @param array $options Custom configuration options
+     * @param array $options
      */
     public function __construct(array $options = [])
     {
-        $this->config = array_merge($this->defaults, $options);
+        $this->config = array_merge($this->defaults, $this->loadConfig(), $options);
     }
 
     /**
      * Get a configuration value.
      *
-     * @param string $key Configuration key
-     * @param mixed|null $default Default value if key doesn't exist
+     * @param string $key
+     * @param mixed|null $default
      * @return mixed
      */
     public function get(string $key, mixed $default = null): mixed
@@ -64,8 +68,8 @@ class Config
     /**
      * Set a configuration value.
      *
-     * @param string $key Configuration key
-     * @param mixed $value Configuration value
+     * @param string $key
+     * @param mixed $value
      * @return void
      */
     public function set(string $key, mixed $value): void
@@ -148,6 +152,17 @@ class Config
     public function getModelMaxTokens(Model $model): int
     {
         return $model->contextWindow();
+    }
+
+    /**
+     * Sets the base URL in the configuration.
+     *
+     * @param string $url
+     * @return void
+     */
+    public function setBaseUrl(string $url): void
+    {
+        $this->config['base_url'] = $url;
     }
 
     /**

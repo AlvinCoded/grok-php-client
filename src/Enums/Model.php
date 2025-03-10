@@ -80,7 +80,10 @@ enum Model: string
      */
     public function supportsVision(): bool
     {
-        return $this === self::GROK_2_VISION_1212 || $this === self::GROK_VISION_BETA;
+        return match($this) {
+            self::GROK_2_VISION_1212, self::GROK_VISION_BETA => true,
+            default => false,
+        };
     }
 
     /**
@@ -125,4 +128,8 @@ enum Model: string
         return self::GROK_2_1212;
     }
 
+    // public function __toString(): string
+    // {
+    //     return $this->value;
+    // }
 }

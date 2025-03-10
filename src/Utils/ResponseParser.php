@@ -29,7 +29,7 @@ class ResponseParser
      * Parse a raw API response.
      *
      * @param ResponseInterface $response
-     * @param string $expectedType Type of response expected ('chat', 'completion', 'image')
+     * @param string $expectedType
      * @return mixed
      * @throws GrokException
      */

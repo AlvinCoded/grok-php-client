@@ -15,14 +15,20 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase
 {
-    private string $apiKey = 'test-api-key';
     private GrokClient $client;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->client = new GrokClient($this->apiKey);
+        $apiKey = $_ENV['GROK_API_KEY'] ?? getenv('GROK_API_KEY');
+        
+        if (empty($apiKey)) {
+            $this->markTestSkipped('GROK_API_KEY is not set in environment variables.');
+        }
+        
+        $this->client = new GrokClient($apiKey);
     }
+
 
     /**
      * @covers \GrokPHP\Client\GrokClient
@@ -88,7 +94,7 @@ class ClientTest extends TestCase
             'max_retries' => 5,
         ];
 
-        $client = new GrokClient($this->apiKey, $options);
+        $client = new GrokClient($_ENV['GROK_API_KEY'], $options);
         $config = $client->getConfig();
 
         $this->assertEquals(60, $config->get('timeout'));

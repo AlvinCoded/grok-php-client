@@ -104,7 +104,10 @@ class Params
      */
     public function systemMessage(string $message): self
     {
-        $this->params['system_message'] = $message;
+        $this->params['messages'][] = [
+            'role' => 'system',
+            'content' => $message,
+        ];
         return $this;
     }
 

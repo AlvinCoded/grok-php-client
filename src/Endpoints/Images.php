@@ -74,7 +74,14 @@ class Images
     {
         $this->config = $config;
         $this->apiKey = $config->getApiKey();
-        $this->httpClient = new Client();
+        $this->client = new Client([
+            'base_uri' => $config->getBaseUrl(),
+            'timeout' => $config->get('timeout'),
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ],
+        ]);
 
         if (is_string($model)) {
             $this->model = Model::fromString($model);
@@ -97,8 +104,12 @@ class Images
      * @return Image
      * @throws GrokException
      */
-    public function analyze(string $imageUrl, ?string $prompt = null, ?Params $params = null): Image
+    public function analyze(?string $imageUrl, ?string $prompt = null, ?Params $params = null): Image
     {
+        if (is_null($imageUrl)) {
+            throw new GrokException("Image URL cannot be null");
+        }
+        
         $this->validateImageUrl($imageUrl);
 
         $payload = $this->requestBuilder->buildImageAnalysisRequest(
@@ -108,7 +119,10 @@ class Images
             $this->model->value
         );
 
-        $response = $this->post(self::CHAT_ENDPOINT, $payload)[0];
+        $response = $this->client->post($this->config->getBaseUrl() . self::CHAT_ENDPOINT, [
+            'json' => $payload,
+            'headers' => $this->requestBuilder->buildHeaders($this->config->getApiKey())
+        ]);
         return $this->responseParser->parse($response, 'image');
     }
 
@@ -129,4 +143,17 @@ class Images
             throw new GrokException("Unsupported image format: {$extension}");
         }
     }
+
+    /**
+     * Set the HTTP client (for testing purposes).
+     *
+     * @param Client $client
+     * @return self
+     */
+    public function setHttpClient(Client $client): self
+    {
+        $this->client = $client;
+        return $this;
+    }
+
 }

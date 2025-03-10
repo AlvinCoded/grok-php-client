@@ -52,6 +52,7 @@ class GrokClient implements ClientInterface
         }
 
         $this->config = new Config(array_merge($options, ['api_key' => $this->apiKey]));
+        $this->baseUrl = $this->config->getBaseUrl();
     }
 
     /**
@@ -125,7 +126,7 @@ class GrokClient implements ClientInterface
      */
     public function setBaseUrl(string $url): void
     {
-        $this->baseUrl = $url;
+        $this->config->setBaseUrl($url);
     }
 
     /**

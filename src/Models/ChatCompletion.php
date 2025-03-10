@@ -89,7 +89,7 @@ class ChatCompletion implements JsonSerializable
      */
     public function getText(): string
     {
-        return $this->choices[0]['message']['content'] ?? '';
+        return $this->choices[0]['message']['content'] ?? $this->choices[0]['text'] ?? '';
     }
 
     /**

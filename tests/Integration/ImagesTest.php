@@ -9,24 +9,27 @@
     use GrokPHP\Exceptions\GrokException;
     use PHPUnit\Framework\TestCase;
     use Dotenv\Dotenv;
-
+use GrokPHP\Enums\Model;
 
     class ImagesTest extends TestCase
     {
-        private GrokClient $client;
         private string $testImageUrl = 'https://picsum.photos/200/300.jpg';
+        private GrokClient $client;
 
         protected function setUp(): void
         {
             parent::setUp();
-            $dotenv = Dotenv::createImmutable(__DIR__);
-            $dotenv->load();
-            $this->client = new GrokClient(getenv('GROK_API_KEY'));
+            $apiKey = $_ENV['GROK_API_KEY'] ?? getenv('GROK_API_KEY');
+            $this->client = new GrokClient($apiKey);
+            
+            if (empty($apiKey)) {
+                $this->markTestSkipped('GROK_API_KEY is not set in environment variables.');
+            }
         }
 
         public function testBasicImageAnalysis(): void
         {
-            $response = $this->client->images()->analyze($this->testImageUrl);
+            $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze($this->testImageUrl);
 
             $this->assertInstanceOf(Image::class, $response);
             $this->assertNotEmpty($response->getAnalysis());
@@ -34,7 +37,7 @@
 
         public function testImageAnalysisWithPrompt(): void
         {
-            $response = $this->client->images()->analyze(
+            $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze(
                 $this->testImageUrl,
                 'Describe the main objects in this image'
             );
@@ -52,7 +55,7 @@
             ];
 
             foreach ($imageFormats as $format => $url) {
-                $response = $this->client->images()->analyze($url);
+                $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze($url);
                 $this->assertInstanceOf(Image::class, $response);
             }
         }
@@ -61,12 +64,12 @@
         {
             $this->expectException(GrokException::class);
             
-            $this->client->images()->analyze('invalid-url');
+            $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze('invalid-url');
         }
 
         public function testImageAnalysisWithDetailedPrompt(): void
         {
-            $response = $this->client->images()->analyze(
+            $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze(
                 $this->testImageUrl,
                 'Analyze the lighting, composition, and mood of this image'
             );
@@ -80,27 +83,38 @@
 
         public function testImageMetadata(): void
         {
-            $response = $this->client->images()->analyze($this->testImageUrl);
+            $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze($this->testImageUrl);
+
             $metadata = $response->getMetadata();
 
-            $this->assertIsArray($metadata);
-            $this->assertArrayHasKey('model', $metadata);
+            $this->assertIsArray($metadata, 'Expected metadata to be an array.');
+            $this->assertArrayHasKey('model', $metadata, 'Expected metadata to contain "model" key.');
+            $this->assertArrayHasKey('usage', $metadata, 'Expected metadata to contain "usage" key.');
         }
+
 
         public function testMultimodalResponse(): void
         {
-            $response = $this->client->images()->analyze(
+            $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze(
                 $this->testImageUrl,
                 'What objects do you see and their approximate locations?'
             );
 
             $this->assertInstanceOf(Image::class, $response);
-            $this->assertNotNull($response->getImageUrl());
+            
+            $imageUrl = $response->getImageUrl();
+            $this->assertNotNull($imageUrl, 'Expected image URL to be present, but got null.');
+            $this->assertMatchesRegularExpression(
+                '/^https?:\/\/[^\s]+$/',
+                $imageUrl,
+                'Expected a valid image URL format.'
+            );
         }
+
 
         public function testImageAnalysisTokenUsage(): void
         {
-            $response = $this->client->images()->analyze($this->testImageUrl);
+            $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze($this->testImageUrl);
             $usage = $response->getUsage();
 
             $this->assertIsArray($usage);
@@ -121,7 +135,7 @@
 
             $responses = [];
             foreach ($urls as $url) {
-                $responses[] = $this->client->images()->analyze($url);
+                $responses[] = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze($url);
             }
 
             foreach ($responses as $response) {
@@ -136,12 +150,12 @@
         {
             $this->expectException(GrokException::class);
             
-            $this->client->images()->analyze('https://picsum.photos/200/300.bmp');
+            $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze('https://picsum.photos/200/300.bmp');
         }
 
         public function testImageAnalysisWithEmptyPrompt(): void
         {
-            $response = $this->client->images()->analyze(
+            $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze(
                 $this->testImageUrl,
                 ''
             );
@@ -152,7 +166,7 @@
 
         public function testImageAnalysisWithNullPrompt(): void
         {
-            $response = $this->client->images()->analyze(
+            $response = $this->client->model(Model::GROK_2_VISION_1212)->images()->analyze(
                 $this->testImageUrl,
                 null
             );

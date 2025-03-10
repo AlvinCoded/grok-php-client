@@ -83,8 +83,9 @@ class Image implements JsonSerializable
      */
     private function validateAndSetData(array $data): void
     {
-        if (isset($data['choices'][0]['message']['content'])) {
-            $this->validateImageUrl($this->extractImageUrl($data));
+        $imageUrl = $this->extractImageUrl($data);
+        if ($imageUrl !== null) {
+            $this->validateImageUrl($imageUrl);
         }
 
         $this->id = $data['id'] ?? '';
@@ -92,7 +93,7 @@ class Image implements JsonSerializable
         $this->model = Model::fromString($data['model'] ?? 'grok-2-1212');
         $this->choices = $data['choices'];
         $this->usage = $data['usage'] ?? [];
-        $this->imageUrl = $this->extractImageUrl($data);
+        $this->imageUrl = $imageUrl;
         $this->metadata = $data['metadata'] ?? null;
     }
 
@@ -119,12 +120,13 @@ class Image implements JsonSerializable
      */
     public function getAnalysis(): string
     {
-        $content = $this->choices[0]['message']['content'] ?? [];
+        $content = $this->choices[0]['message']['content'] ?? '';
         if (is_array($content)) {
-            $textContent = array_filter($content, fn($item) => $item['type'] === 'text');
-            return implode(' ', array_column($textContent, 'text'));
+            $content = array_reduce($content, function ($carry, $item) {
+                return $carry . ($item['text'] ?? '');
+            }, '');
         }
-        return '';
+        return $content;
     }
 
     /**

@@ -101,8 +101,20 @@ class Completions
             $this->model->value
         );
 
-        $response = $this->post(self::COMPLETIONS_ENDPOINT, $payload)[0];
-        return $this->responseParser->parse($response, 'completion');
+        $maxTokens = $this->config->getModelMaxTokens($this->model);
+        if (isset($payload['max_tokens']) && $payload['max_tokens'] > $maxTokens) {
+            throw new GrokException("Requested token count exceeds the model's maximum context length of {$maxTokens} tokens");
+        }
+
+        $response = $this->client->post($this->config->getBaseUrl() . self::COMPLETIONS_ENDPOINT, [
+            'json' => $payload,
+            'headers' => $this->requestBuilder->buildHeaders($this->config->getApiKey())
+        ]);
+        $parsedResponse = $this->responseParser->parse($response, 'completion');
+        if (empty($parsedResponse->getChoices())) {
+            throw new GrokException('The response does not contain any choices.');
+        }
+        return $parsedResponse;
     }
 
     /**
@@ -141,8 +153,15 @@ class Completions
             'stream' => true,
         ]);
 
-        foreach ($response->getBody() as $chunk) {
-            $callback($chunk);
+        $body = $response->getBody();
+        while (!$body->eof()) {
+            $chunk = $body->read(1024);
+            $lines = explode("\n", $chunk);
+            foreach ($lines as $line) {
+                if (!empty($line)) {
+                    $callback($line);
+                }
+            }
         }
     }
 
@@ -186,5 +205,17 @@ class Completions
 
         $result = json_decode($response[0]->getBody()->getContents(), false);
         return $result['token_count'];
+    }
+
+    /**
+     * Set the HTTP client (for testing purposes).
+     *
+     * @param Client $client
+     * @return self
+     */
+    public function setHttpClient(Client $client): self
+    {
+        $this->client = $client;
+        return $this;
     }
 }
