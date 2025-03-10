@@ -10,6 +10,9 @@
     <a href="https://laravel.com">
       <img src="https://img.shields.io/badge/Laravel-11%2B-red" alt="PHP Version">
     </a>
+    <a href="https://github.com/alvincoded/grok-php-client/actions/workflows/test.yml">
+      <img src="https://github.com/alvincoded/grok-php-client/actions/workflows/test.yml/badge.svg" alt="Tests Passing">
+    </a>
     <a href="LICENSE.md">
       <img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="License">
     </a>
