@@ -4,8 +4,6 @@ All notable changes to `grok-php-client` will be documented in this file.
 
 ## v1.3.0 - 2025-03-10
 
-### v1.3.0 - 2025-02-26
-
 #### Added
 
 - **Laravel 11+ Integration** as a first-class framework implementation
